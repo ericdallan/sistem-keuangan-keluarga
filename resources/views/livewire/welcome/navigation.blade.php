@@ -1,26 +1,19 @@
-<nav class="-mx-3 flex flex-1 justify-end">
+<nav class="d-flex justify-content-end gap-2">
     @auth
-        <a
-            href="{{ url('/dashboard') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Dashboard
+        <a href="{{ url('/dashboard') }}"
+            class="btn-sk-primary px-4 rounded-pill fw-bold shadow-sm text-decoration-none d-inline-flex align-items-center">
+            Dashboard <i class="bi bi-speedometer2 ms-1"></i>
         </a>
     @else
-        <a
-            href="{{ route('login') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
+        <a href="{{ route('login') }}"
+            class="btn-sk-outline px-4 rounded-pill fw-bold text-decoration-none d-inline-flex align-items-center">
             Log in
         </a>
 
-        @if (Route::has('register'))
-            <a
-                href="{{ route('register') }}"
-                class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-            >
+        {{-- @if (Route::has('register'))
+            <a href="{{ route('register') }}" class="btn-sk-primary px-4 rounded-pill fw-bold shadow-sm text-decoration-none d-inline-flex align-items-center">
                 Register
             </a>
-        @endif
+        @endif --}}
     @endauth
 </nav>

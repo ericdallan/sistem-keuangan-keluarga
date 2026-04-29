@@ -4,9 +4,9 @@ use App\Livewire\Forms\LoginForm;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Illuminate\Validation\ValidationException;
 
-new #[Layout('layouts.guest')] class extends Component
-{
+new #[Layout('layouts.guest')] class extends Component {
     public LoginForm $form;
 
     /**
@@ -14,58 +14,105 @@ new #[Layout('layouts.guest')] class extends Component
      */
     public function login(): void
     {
-        $this->validate();
-
-        $this->form->authenticate();
-
-        Session::regenerate();
-
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        try {
+            $this->validate();
+            $this->form->authenticate();
+            Session::regenerate();
+            $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        } catch (ValidationException $e) {
+            throw ValidationException::withMessages([
+                'form.email' => 'Hmm, email atau password yang kamu masukkan kayaknya belum cocok nih. Coba dicek lagi ya!',
+            ]);
+        }
     }
 }; ?>
 
-<div>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<div class="card border-0 rounded-4 overflow-hidden">
+    <div class="p-4 text-center text-white" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
+        <h5 class="fw-bold mb-1">Selamat Datang Kembali</h5>
+        <p class="small mb-0 opacity-75">Silakan masuk untuk melanjutkan</p>
+    </div>
 
-    <form wire:submit="login">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
-        </div>
+    <div class="card-body p-4">
+        <!-- Session Status -->
+        <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <form wire:submit="login">
+            <!-- Email Address -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted text-uppercase">Email</label>
+                <div class="input-group border rounded-3 overflow-hidden shadow-sm">
+                    <span class="input-group-text bg-white border-0"><i class="bi bi-envelope text-muted"></i></span>
+                    <x-text-input wire:model="form.email" id="email" class="form-control border-0 py-2"
+                        type="email" name="email" placeholder="nama@email.com" required autofocus
+                        autocomplete="username" />
+                </div>
+                <x-input-error :messages="$errors->get('form.email')" class="text-danger mt-2 small fw-medium" />
+            </div>
 
-            <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <!-- Password -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-0">Password</label>
+                    @if (Route::has('password.request'))
+                        <a class="small text-decoration-none fw-bold text-sk-primary"
+                            href="{{ route('password.request') }}" wire:navigate>
+                            Lupa?
+                        </a>
+                    @endif
+                </div>
+                <div class="input-group border rounded-3 overflow-hidden shadow-sm" id="pwd_group">
+                    <span class="input-group-text bg-white border-0"><i class="bi bi-key text-muted"></i></span>
+                    <x-text-input wire:model="form.password" id="password" class="form-control border-0 py-2"
+                        type="password" name="password" placeholder="••••••••" required
+                        autocomplete="current-password" />
+                    <button class="btn bg-white border-0 text-muted px-3" type="button" onclick="togglePassword()">
+                        <i class="bi bi-eye-slash" id="toggle_icon"></i>
+                    </button>
+                </div>
+                <x-input-error :messages="$errors->get('form.password')" class="text-danger mt-2 small fw-medium" />
+            </div>
 
-            <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
-        </div>
+            <!-- Remember Me -->
+            <div class="mb-4 form-check">
+                <input wire:model="form.remember" id="remember" type="checkbox" class="form-check-input"
+                    name="remember">
+                <label for="remember" class="form-check-label small text-muted">Tetap masuk di perangkat ini</label>
+            </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn-sk-primary btn-lg rounded-pill fw-bold py-2 shadow-sm border-0 w-100"
+                    wire:loading.attr="disabled">
+                    <span wire:loading.remove>
+                        Masuk Sekarang <i class="bi bi-box-arrow-in-right ms-1"></i>
+                    </span>
+                    <span wire:loading>
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                        Memproses...
+                    </span>
+                </button>
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
+            <div class="text-center">
+                <a href="/" wire:navigate
+                    class="text-muted small text-decoration-none fw-semibold hover-sk-primary">
+                    <i class="bi bi-house-door me-1"></i> Kembali ke Beranda
                 </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = document.getElementById('toggle_icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        }
+    }
+</script>
