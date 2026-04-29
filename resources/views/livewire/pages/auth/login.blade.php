@@ -18,10 +18,12 @@ new #[Layout('layouts.guest')] class extends Component {
             $this->validate();
             $this->form->authenticate();
             Session::regenerate();
-            $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+
+            // Redirect berdasarkan role
+            $this->redirect($this->form->getRedirectRoute(), navigate: true);
         } catch (ValidationException $e) {
             throw ValidationException::withMessages([
-                'form.email' => 'Hmm, email atau password yang kamu masukkan kayaknya belum cocok nih. Coba dicek lagi ya!',
+                'form.email' => 'Hmm, email atau password yang kamu masukkan kayaknya belum cocok. Coba dicek lagi ya!',
             ]);
         }
     }

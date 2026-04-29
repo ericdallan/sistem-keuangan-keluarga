@@ -21,11 +21,6 @@ class LoginForm extends Form
     #[Validate('boolean')]
     public bool $remember = false;
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws ValidationException
-     */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
@@ -34,7 +29,7 @@ class LoginForm extends Form
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
+                'form.email' => 'Email atau password salah.',
             ]);
         }
 
@@ -42,8 +37,17 @@ class LoginForm extends Form
     }
 
     /**
-     * Ensure the authentication request is not rate limited.
+     * Redirect URL setelah login berdasarkan role.
      */
+    public function getRedirectRoute(): string
+    {
+        return route('dashboard');
+        // Kalau nanti perlu redirect berbeda per role:
+        // return Auth::user()->role === 'admin'
+        //     ? route('dashboard')
+        //     : route('dashboard');
+    }
+
     protected function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -62,11 +66,8 @@ class LoginForm extends Form
         ]);
     }
 
-    /**
-     * Get the authentication rate limiting throttle key.
-     */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 }
