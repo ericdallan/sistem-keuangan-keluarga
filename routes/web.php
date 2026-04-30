@@ -38,28 +38,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
+    // ── User Only ─────────────────────────────────────────────────
+    Route::middleware('role:user')->group(function () {
+
+        // Pengeluaran (Expenses) — User: create & edit
+        // Index tidak di sini karena admin juga perlu akses (read-only)
+        Route::prefix('expenses')->name('expenses.')->group(function () {
+            Route::get('/create', Expenses\Create::class)->name('create');
+            Route::get('/{expense}/edit', Expenses\Edit::class)->name('edit');
+        });
+        Route::get('/my-fund-requests', FundRequests\Index::class)->name('my-fund-requests.index');
+    });
+
     // ── Shared (Admin & User) ─────────────────────────────────────
 
-    // Pengeluaran (Expenses) — CRUD
-    Route::prefix('expenses')->name('expenses.')->group(function () {
-        Route::get('/', Expenses\Index::class)->name('index');
-        Route::get('/create', Expenses\Create::class)->name('create');
-        Route::get('/{expense}/edit', Expenses\Edit::class)->name('edit');
-    });
+    // Pengeluaran (Expenses) — index diakses semua role
+    // Komponen menangani: admin → read + approval, user → CRUD milik sendiri
+    Route::get('/expenses', Expenses\Index::class)->name('expenses.index');
 
     // Pengajuan Dana (Fund Requests) — CRUD
     Route::prefix('fund-requests')->name('fund-requests.')->group(function () {
         Route::get('/', FundRequests\Index::class)->name('index');
         Route::get('/create', FundRequests\Create::class)->name('create');
         Route::get('/{fundRequest}/edit', FundRequests\Edit::class)->name('edit');
-    });
-
-    // ── User Only (Alias View) ────────────────────────────────────
-    // Alias khusus user agar URL lebih personal,
-    // menggunakan komponen yang sama dengan admin
-    Route::middleware('role:user')->group(function () {
-        Route::get('/my-expenses', Expenses\Index::class)->name('my-expenses.index');
-        Route::get('/my-fund-requests', FundRequests\Index::class)->name('my-fund-requests.index');
     });
 
     // ── Laporan & Statistik ───────────────────────────────────────

@@ -8,6 +8,14 @@ use App\Models\User;
 class ExpensePolicy
 {
     /**
+     * Hanya user (bukan admin) yang bisa membuat pengeluaran.
+     */
+    public function create(User $user): bool
+    {
+        return $user->role === 'user';
+    }
+
+    /**
      * Admin bisa lihat semua, user hanya miliknya.
      */
     public function view(User $user, Expense $expense): bool
@@ -15,23 +23,30 @@ class ExpensePolicy
         return $user->role === 'admin' || $expense->user_id === $user->id;
     }
 
+    /**
+     * User hanya bisa edit miliknya sendiri & status pending.
+     * Admin tidak bisa edit sama sekali.
+     */
     public function update(User $user, Expense $expense): bool
     {
-        // User hanya bisa edit jika masih pending
         if ($user->role === 'user') {
             return $expense->user_id === $user->id && $expense->status === 'pending';
         }
 
-        return $user->role === 'admin';
+        return false;
     }
 
+    /**
+     * User hanya bisa hapus miliknya sendiri & status pending.
+     * Admin tidak bisa hapus sama sekali.
+     */
     public function delete(User $user, Expense $expense): bool
     {
         if ($user->role === 'user') {
             return $expense->user_id === $user->id && $expense->status === 'pending';
         }
 
-        return $user->role === 'admin';
+        return false;
     }
 
     /**

@@ -13,6 +13,11 @@ class Expense extends Model
 {
     use HasUuids;
 
+    protected $casts = [
+        'date'   => 'date',
+        'amount' => 'integer',
+    ];
+
     public function uniqueIds(): array
     {
         return ['uuid_expenses'];
