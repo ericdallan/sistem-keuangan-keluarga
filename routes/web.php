@@ -44,7 +44,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ── User Routes (Alias) ─────────────────────────────────────
-    // ⭐ PINDAH KE DALAM auth group!
     Route::middleware('role:user')->group(function () {
         Route::get('/my-expenses', Expenses\Index::class)->name('my-expenses.index');
         Route::get('/my-fund-requests', FundRequests\Index::class)->name('my-fund-requests.index');
