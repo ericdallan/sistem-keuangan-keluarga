@@ -96,28 +96,58 @@
                             <label class="form-label fw-600 small mb-1">
                                 {{ $expense->evidence_path ? 'Ganti (Opsional)' : 'Bukti Pengeluaran' }}
                             </label>
+
                             <input type="file" wire:model="evidence"
                                 class="form-control form-control-sm @error('evidence') is-invalid @enderror"
                                 accept=".jpg,.jpeg,.png,.pdf" {{ $expense->status !== 'pending' ? 'disabled' : '' }}>
+
                             <div class="form-text" style="font-size:.7rem">JPG, PNG, PDF. Maks 2 MB.</div>
+
                             @error('evidence')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
-                        </div>
-                    </div>
 
-                    {{-- Preview file name --}}
-                    @if ($evidence)
-                        <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded"
-                            style="background:var(--sk-primary-light);font-size:.8rem;color:var(--sk-primary)">
-                            <i class="bi bi-file-earmark-check-fill"></i>
-                            <span class="fw-600">{{ $evidence->getClientOriginalName() }}</span>
-                        </div>
-                    @endif
+                            {{-- Preview Section --}}
+                            @if ($evidence)
+                                <div class="mt-3">
+                                    {{-- 1. Label/Judul Selalu di Atas --}}
+                                    <div class="mb-2">
+                                        <label class="small fw-800 text-muted text-uppercase"
+                                            style="font-size: .65rem; letter-spacing: .5px;">
+                                            <i class="bi bi-eye me-1"></i> Preview Bukti Baru
+                                        </label>
+                                    </div>
 
-                    <div wire:loading wire:target="evidence" class="mb-2">
-                        <span class="spinner-border spinner-border-sm text-success me-1"></span>
-                        <span class="small text-muted">Mengupload...</span>
+                                    {{-- 2. Area Gambar Preview --}}
+                                    @if (in_array($evidence->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']))
+                                        <div class="position-relative d-inline-block mb-2">
+                                            <img src="{{ $evidence->temporaryUrl() }}" class="img-thumbnail shadow-sm"
+                                                style="max-height: 120px; border-radius: .5rem; border-color: #ddd;">
+
+                                            {{-- Tombol Hapus --}}
+                                            <button type="button" wire:click="$set('evidence', null)"
+                                                class="btn btn-sm btn-danger shadow-sm position-absolute top-0 end-0 m-1"
+                                                style="line-height:1; border-radius:50%; font-size: .7rem; padding: 4px 7px;">
+                                                &times;
+                                            </button>
+                                        </div>
+                                    @endif
+
+                                    {{-- 3. Info Nama File --}}
+                                    <div class="d-flex align-items-center gap-2 p-2 rounded"
+                                        style="background:var(--sk-primary-light);font-size:.8rem;color:var(--sk-primary)">
+                                        <i class="bi bi-file-earmark-check-fill"></i>
+                                        <span
+                                            class="fw-600 text-truncate">{{ $evidence->getClientOriginalName() }}</span>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div wire:loading wire:target="evidence" class="mt-2">
+                                <span class="spinner-border spinner-border-sm text-success me-1"></span>
+                                <span class="small text-muted">Mengupload...</span>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Submit --}}
