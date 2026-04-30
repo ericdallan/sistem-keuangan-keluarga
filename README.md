@@ -1,58 +1,110 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
 </p>
+<h1 align="center">Sistem Keuangan Keluarga</h1>
+<p align="center">
+  Aplikasi Manajemen Keuangan Keluarga dengan Sistem Approval Workflow<br>
+  <strong>Dibuat untuk memenuhi tugas technical interview</strong><br>
+  <strong>Full Stack Developer - PT. Niramas Utama (INACO)</strong>
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 13">
+  <img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3">
+  <img src="https://img.shields.io/badge/Livewire-3-4F46E5?style=for-the-badge&logo=livewire&logoColor=white" alt="Livewire 3">
+  <img src="https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap 5">
+</p>
+<h2>About This Project</h2>
+<p><strong>Sistem Keuangan Keluarga</strong> adalah aplikasi berbasis Laravel 13 yang dirancang untuk membantu keluarga mengelola keuangan secara transparan dan terstruktur. Aplikasi ini menyediakan pencatatan pemasukan, pengeluaran, serta sistem pengajuan dana dengan <strong>approval workflow</strong> yang jelas antara Admin (Suami) dan User (Istri/Anak).</p>
+<p>Proyek ini dibangun dengan fokus pada clean code menggunakan <strong>Class-Based Livewire Components</strong>, RBAC dengan Laravel Policy, dan otomatisasi transaksi database.</p>
+<h2>Fitur Utama</h2>
+<ul>
+<li>Role-Based Access Control (RBAC) menggunakan Laravel Policy</li>
+<li>Approval Workflow untuk pengajuan dana dan pengeluaran</li>
+<li>Otomatisasi Finansial (data pengajuan dana otomatis menjadi pemasukan setelah disetujui)</li>
+<li>Upload bukti transaksi (Gambar & PDF)</li>
+<li>Class-Based Livewire 3 Components</li>
+<li>Validasi form ketat dan proteksi data sensitif</li>
+<li>Antarmuka responsif dengan Bootstrap 5</li>
+</ul>
+<h2>Tech Stack</h2>
+<table>
+  <tr><th>Kategori</th><th>Teknologi</th></tr>
+  <tr><td><strong>Framework</strong></td><td>Laravel 13</td></tr>
+  <tr><td><strong>PHP</strong></td><td>^8.3</td></tr>
+  <tr><td><strong>Database</strong></td><td>MySQL</td></tr>
+  <tr><td><strong>Frontend</strong></td><td>Blade Templating + Bootstrap 5</td></tr>
+  <tr><td><strong>Interactivity</strong></td><td>Livewire 3 (Class-Based Components)</td></tr>
+  <tr><td><strong>Authentication</strong></td><td>Laravel Breeze</td></tr>
+</table>
+<h2>Alur Kerja Aplikasi</h2>
+<ol>
+<li>User membuat pengajuan dana atau mencatat pengeluaran</li>
+<li>Status otomatis menjadi <strong>Pending</strong></li>
+<li>Admin melakukan review dan approval/reject</li>
+<li>Jika disetujui, data pengajuan dana otomatis dipindahkan ke Master Pemasukan</li>
+<li>Semua transaksi tercatat lengkap dengan bukti</li>
+</ol>
+<h2>Cara Instalasi</h2>
+<h3>1. Clone Repository</h3>
+<pre>
+git clone [link-repo-anda]
+cd sistem-keuangan-keluarga
+</pre>
+<h3>2. Install Dependensi</h3>
+<pre>
+composer install
+npm install && npm run build
+</pre>
+<h3>3. Konfigurasi Environment</h3>
+<pre>
+cp .env.example .env
+</pre>
+<p>Sesuaikan konfigurasi database di file <code>.env</code>:</p>
+<pre>
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sistem_keuangan_keluarga
+DB_USERNAME=root
+DB_PASSWORD=
+</pre>
+<h3>4. Generate Application Key</h3>
+<pre>
+php artisan key:generate
+</pre>
+<h3>5. Migrasi Database</h3>
+<pre>
+php artisan migrate
+</pre>
+<h3>6. Symlink Storage (Penting!)</h3>
+<pre>
+php artisan storage:link
+</pre>
+<h3>7. Jalankan Aplikasi</h3>
+<pre>
+php artisan serve
+</pre>
+<p>Buka browser dan akses: <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a></p>
+<h2>Role Pengguna</h2>
+<table>
+  <tr><th>Role</th><th>Pengguna</th><th>Hak Akses</th></tr>
+  <tr><td><strong>Admin</strong></td><td>Suami</td><td>Full Access + Approval Management</td></tr>
+  <tr><td><strong>User</strong></td><td>Istri / Anak</td><td>Membuat pengajuan & pengeluaran (butuh approval)</td></tr>
+</table>
+<h2>Struktur Folder Penting</h2>
+<pre>
+app/
+├── Livewire/                  → Class-Based Livewire Components
+└── Policies/                  → Authorization Logic (RBAC)
 
-## About Laravel
+storage/
+└── app/public/evidence/ → Penyimpanan bukti transaksi
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+resources/
+└── views/livewire/ → Blade views untuk Livewire
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+</pre>
+<h2>Testing</h2>
+<pre>
+php artisan test
+</pre>
