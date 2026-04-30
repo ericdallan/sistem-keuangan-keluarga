@@ -63,12 +63,21 @@
                                 {{ $user->position ?? '-' }}
                             </td>
                             <td class="pe-4 text-end">
-                                <button wire:click="edit({{ $user->id }})" class="sk-icon-btn me-1">
-                                    <i class="bi bi-pencil-square" style="color:var(--sk-primary)"></i>
-                                </button>
-                                <button wire:click="confirmDelete({{ $user->id }})" class="sk-icon-btn">
-                                    <i class="bi bi-trash3 text-danger"></i>
-                                </button>
+                                @if ($user->role === 'admin')
+                                    <button class="sk-icon-btn me-1" disabled style="opacity:.35;cursor:not-allowed">
+                                        <i class="bi bi-pencil-square" style="color:var(--sk-primary)"></i>
+                                    </button>
+                                    <button class="sk-icon-btn" disabled style="opacity:.35;cursor:not-allowed">
+                                        <i class="bi bi-trash3 text-danger"></i>
+                                    </button>
+                                @else
+                                    <button wire:click="edit({{ $user->id }})" class="sk-icon-btn me-1">
+                                        <i class="bi bi-pencil-square" style="color:var(--sk-primary)"></i>
+                                    </button>
+                                    <button wire:click="confirmDelete({{ $user->id }})" class="sk-icon-btn">
+                                        <i class="bi bi-trash3 text-danger"></i>
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty

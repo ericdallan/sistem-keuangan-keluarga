@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 class UserService
 {
     /**
-     * List semua user (admin only), kecuali diri sendiri.
+     * List semua user (admin only)
      */
     public function getAll(
         ?string $search = null,
@@ -18,15 +18,15 @@ class UserService
         int $perPage = 10
     ): LengthAwarePaginator {
         return User::query()
-            ->where('id', '!=', Auth::id()) // Kecuali diri sendiri (sesuai deskripsi function kamu)
+            // ->where('id', '!=', Auth::id()) // Kecuali diri sendiri
             ->when($search, function ($q) use ($search) {
-                // Gunakan grouping where agar filter search tidak mengacaukan filter role/id
                 $q->where(function ($sub) use ($search) {
                     $sub->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
             ->when($role, fn($q) => $q->where('role', $role))
+            ->orderByRaw("FIELD(position, 'husband', 'wife', 'child')")
             ->latest()
             ->paginate($perPage);
     }
@@ -36,7 +36,6 @@ class UserService
      */
     public function findOrFail($id): User
     {
-        // Mendukung pencarian via ID internal atau uuid_users (untuk Route Model Binding)
         if (is_numeric($id)) {
             return User::findOrFail($id);
         }
@@ -55,7 +54,6 @@ class UserService
             'password' => Hash::make($data['password']),
             'role'     => $data['role'],
             'position' => $data['position'],
-            // uuid_users otomatis terisi oleh trait HasUuids di Model
         ]);
     }
 
