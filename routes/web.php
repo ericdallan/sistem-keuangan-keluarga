@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// ── App Components ───────────────────────────────────────────────
 use App\Livewire\Dashboard;
 use App\Livewire\Income;
 use App\Livewire\Expenses;
@@ -9,52 +10,67 @@ use App\Livewire\FundRequests;
 use App\Livewire\Users;
 use App\Livewire\Statistics;
 use App\Livewire\Reports;
+use App\Livewire\Profile\EditProfile;
 
-Route::get('/', fn() => view('welcome'));
+// ── Landing Page ─────────────────────────────────────────────────
+Route::get('/', fn() => view('welcome'))->name('home');
 
+// ── Authenticated & Verified Routes ──────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // ── Dashboard (Shared) ──────────────────────────────────────
+    // ── Dashboard ─────────────────────────────────────────────────
+    // Dapat diakses oleh semua role (admin & user)
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
-    // ── Admin Only ──────────────────────────────────────────────
+    // ── Admin Only ────────────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
+
+        // Pemasukan (Income) — CRUD
         Route::prefix('income')->name('income.')->group(function () {
             Route::get('/', Income\Index::class)->name('index');
             Route::get('/create', Income\Create::class)->name('create');
             Route::get('/{income}/edit', Income\Edit::class)->name('edit');
         });
 
+        // Kelola Pengguna — hanya list, CRUD via modal
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', Users\Index::class)->name('index');
         });
     });
 
-    // ── Shared Features ─────────────────────────────────────────
+    // ── Shared (Admin & User) ─────────────────────────────────────
+
+    // Pengeluaran (Expenses) — CRUD
     Route::prefix('expenses')->name('expenses.')->group(function () {
         Route::get('/', Expenses\Index::class)->name('index');
         Route::get('/create', Expenses\Create::class)->name('create');
         Route::get('/{expense}/edit', Expenses\Edit::class)->name('edit');
     });
 
+    // Pengajuan Dana (Fund Requests) — CRUD
     Route::prefix('fund-requests')->name('fund-requests.')->group(function () {
         Route::get('/', FundRequests\Index::class)->name('index');
         Route::get('/create', FundRequests\Create::class)->name('create');
         Route::get('/{fundRequest}/edit', FundRequests\Edit::class)->name('edit');
     });
 
-    // ── User Routes (Alias) ─────────────────────────────────────
+    // ── User Only (Alias View) ────────────────────────────────────
+    // Alias khusus user agar URL lebih personal,
+    // menggunakan komponen yang sama dengan admin
     Route::middleware('role:user')->group(function () {
         Route::get('/my-expenses', Expenses\Index::class)->name('my-expenses.index');
         Route::get('/my-fund-requests', FundRequests\Index::class)->name('my-fund-requests.index');
     });
 
-    // ── Laporan & Statistik ─────────────────────────────────────
+    // ── Laporan & Statistik ───────────────────────────────────────
+    // Dapat diakses semua role
     Route::get('/statistics', Statistics\Index::class)->name('statistics.index');
     Route::get('/reports', Reports\Index::class)->name('reports.index');
 
-    // ── Profile ─────────────────────────────────────────────────
-    Route::get('/profile', \App\Livewire\Profile\EditProfile::class)->name('profile.edit');
+    // ── Profile ───────────────────────────────────────────────────
+    Route::get('/profile', EditProfile::class)->name('profile.edit');
 });
 
+// ── Auth Routes ───────────────────────────────────────────────────
+// Login, register, forgot password, reset password, verify email
 require __DIR__ . '/auth.php';
