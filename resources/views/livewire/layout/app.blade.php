@@ -56,6 +56,22 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
     <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('open-modal', ({
+                modal
+            }) => {
+                const el = document.getElementById(modal);
+                if (el) bootstrap.Modal.getOrCreateInstance(el).show();
+            });
+
+            Livewire.on('close-modal', ({
+                modal
+            }) => {
+                const el = document.getElementById(modal);
+                if (el) bootstrap.Modal.getOrCreateInstance(el).hide();
+            });
+        });
+
         function skLayout() {
             return {
                 collapsed: localStorage.getItem('sk_sidebar') === 'collapsed',
