@@ -10,65 +10,15 @@
     <link href="https://fonts.bunny.net/css?family=figtree:300,400,600,700,800&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/sk-digital.css') }}">
 
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #198754 0%, #20c997 100%);
-            --primary-color: #198754;
-            --primary-hover: #157347;
-            --primary-light: #d1e7dd;
-        }
+        /* ============================================
+           Guest Layout — Specific Styles
+           ============================================ */
 
         body {
-            font-family: 'Figtree', sans-serif;
-            background-color: #ffffff;
-            color: #2d3436;
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Reusable Button Styles - Bisa dipakai di blade lain */
-        .btn-sk-primary {
-            background: var(--primary-gradient) !important;
-            border: none !important;
-            padding: 12px 30px !important;
-            border-radius: 50px !important;
-            font-weight: 700 !important;
-            color: white !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3) !important;
-        }
-
-        .btn-sk-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4) !important;
-            color: white !important;
-        }
-
-        .btn-sk-outline {
-            background: transparent !important;
-            border: 2px solid var(--primary-color) !important;
-            padding: 10px 28px !important;
-            border-radius: 50px !important;
-            font-weight: 700 !important;
-            color: var(--primary-color) !important;
-            transition: all 0.3s ease !important;
-        }
-
-        .btn-sk-outline:hover {
-            background: var(--primary-color) !important;
-            color: white !important;
-            transform: translateY(-2px);
-        }
-
-        .text-sk-primary {
-            color: var(--primary-color) !important;
-        }
-
-        .bg-sk-primary-subtle {
-            background-color: var(--primary-light) !important;
         }
 
         .split-left {
@@ -125,15 +75,11 @@
             margin-bottom: 1.5rem;
         }
 
-        .feature-icon {
+        .feature-item .feature-icon {
             width: 44px;
             height: 44px;
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
             font-size: 1.1rem;
             flex-shrink: 0;

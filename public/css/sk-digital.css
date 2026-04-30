@@ -1,0 +1,180 @@
+/* SKK.Digital — Global & Reusable Styles */
+
+:root {
+    --sk-primary: #198754;
+    --sk-primary-hover: #157347;
+    --sk-primary-light: #d1e7dd;
+    --sk-primary-gradient: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    --sk-bg: #f0f4f8;
+    --sk-text: #2d3436;
+    --sk-transition: 0.22s ease;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    font-family: "Figtree", sans-serif;
+    background: var(--sk-bg);
+    color: var(--sk-text);
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/*  Button Styles  */
+
+.btn-sk-primary {
+    background: var(--sk-primary-gradient) !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3) !important;
+}
+
+.btn-sk-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4) !important;
+    color: white !important;
+}
+
+.btn-sk-outline {
+    background: transparent !important;
+    border: 2px solid var(--sk-primary) !important;
+    padding: 10px 28px !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    color: var(--sk-primary) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-sk-outline:hover {
+    background: var(--sk-primary) !important;
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+/*  Text & Background Utilities   */
+
+.text-sk-primary {
+    color: var(--sk-primary) !important;
+}
+
+.bg-sk-primary-subtle {
+    background-color: var(--sk-primary-light) !important;
+}
+
+.sk-text-primary {
+    color: var(--sk-primary) !important;
+}
+
+.sk-bg-primary-subtle {
+    background-color: var(--sk-primary-light) !important;
+}
+
+/* Feature Icon (Shared Component) */
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--sk-primary-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sk-primary);
+    font-size: 1.25rem;
+}
+
+/*  Icon Button (Shared)  */
+
+.sk-icon-btn {
+    background: none;
+    border: none;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    position: relative;
+    transition:
+        background 0.15s,
+        color 0.15s;
+}
+
+.sk-icon-btn:hover {
+    background: var(--sk-primary-light);
+    color: var(--sk-primary);
+}
+
+/*  Avatar  */
+
+.sk-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--sk-primary-light);
+    color: var(--sk-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+/*  Dropdown Base  */
+
+.sk-dropdown {
+    position: absolute;
+    background: #fff;
+    border-radius: 0.875rem;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.11);
+    padding: 0.4rem;
+    z-index: 1060;
+}
+
+.sk-drop-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.575rem 0.875rem;
+    border-radius: 0.55rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sk-text);
+    text-decoration: none;
+    background: none;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.sk-drop-item:hover {
+    background: var(--sk-primary-light);
+    color: var(--sk-primary);
+}
+
+.sk-drop-item.danger {
+    color: #dc3545;
+}
+
+.sk-drop-item.danger:hover {
+    background: #fff5f5;
+    color: #dc3545;
+}
+/* Card */
+.sk-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+}
