@@ -1,17 +1,7 @@
-@if ($isModalOpen)
-    <div x-data="{ open: false }" x-init="setTimeout(() => open = true, 10);
-    document.body.style.overflow = 'hidden'" x-show="open"
-        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
-        class="livewire-modal-overlay">
-
-        <div @click.stop x-show="open" x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-            x-transition:leave-end="opacity-0 scale-95 translate-y-4" class="livewire-modal-content">
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+            style="border-radius:1rem;overflow:hidden;border:none;box-shadow:0 20px 50px rgba(0,0,0,.15)">
 
             {{-- Header --}}
             <div class="d-flex align-items-center justify-content-between px-4 py-3"
@@ -20,7 +10,7 @@
                     <i class="bi {{ $isEditMode ? 'bi-pencil-square' : 'bi-person-plus-fill' }}"></i>
                     {{ $isEditMode ? 'Perbarui Pengguna' : 'Tambah Pengguna Baru' }}
                 </h5>
-                <button wire:click="closeModal"
+                <button type="button" wire:click="closeModal" data-bs-dismiss="modal"
                     class="d-flex align-items-center justify-content-center border-0 text-white"
                     style="width:28px;height:28px;border-radius:.45rem;background:rgba(255,255,255,.2);cursor:pointer;font-size:18px;line-height:1">
                     &times;
@@ -87,55 +77,93 @@
 
                     {{-- Role & Posisi --}}
                     <div class="row g-3 mb-3">
+
+                        {{-- Role --}}
                         <div class="col-12 col-sm-6">
                             <label class="d-block mb-1"
                                 style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em">
                                 Role
                             </label>
-                            <div class="d-flex align-items-center"
-                                style="background:#f8f9fa;border-radius:.55rem;border:1.5px solid transparent;overflow:hidden;transition:border .15s,background .15s"
+                            <div class="dropdown"
+                                style="background:#f8f9fa;border-radius:.55rem;border:1.5px solid transparent;transition:border .15s,background .15s"
                                 onfocusin="this.style.borderColor='var(--sk-primary)';this.style.background='#fff'"
                                 onfocusout="this.style.borderColor='transparent';this.style.background='#f8f9fa'">
-                                <span class="px-3" style="color:#adb5bd;font-size:14px;flex-shrink:0">
-                                    <i class="bi bi-shield"></i>
-                                </span>
-                                <select wire:model.live="role"
-                                    class="border-0 shadow-none form-select @error('role') is-invalid @enderror"
-                                    style="background:transparent;font-size:13.5px;padding:9px 10px 9px 0">
-                                    <option value="">Pilih...</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                </select>
+                                <button type="button" data-bs-toggle="dropdown"
+                                    class="btn w-100 d-flex align-items-center gap-2 border-0 shadow-none @error('role') is-invalid @enderror"
+                                    style="background:transparent;font-size:13.5px;padding:9px 12px;color:{{ $role ? '#2d3436' : '#adb5bd' }}">
+                                    <i class="bi bi-shield" style="color:#adb5bd;font-size:14px;flex-shrink:0"></i>
+                                    <span
+                                        class="flex-grow-1 text-start">{{ $role ? ucfirst($role) : 'Pilih...' }}</span>
+                                    <i class="bi bi-chevron-down"
+                                        style="font-size:11px;color:#adb5bd;flex-shrink:0"></i>
+                                </button>
+                                <ul class="dropdown-menu w-100 shadow-sm py-1"
+                                    style="border-radius:.55rem;border:1px solid rgba(0,0,0,.08);font-size:13.5px">
+                                    <li>
+                                        <a class="dropdown-item py-2" href="#"
+                                            wire:click.prevent="$set('role', 'admin')">
+                                            Admin
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="#"
+                                            wire:click.prevent="$set('role', 'user')">
+                                            User
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                             @error('role')
                                 <div class="text-danger mt-1" style="font-size:12px">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        {{-- Posisi --}}
                         <div class="col-12 col-sm-6">
                             <label class="d-block mb-1"
                                 style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em">
                                 Posisi
                             </label>
-                            <div class="d-flex align-items-center"
-                                style="background:#f8f9fa;border-radius:.55rem;border:1.5px solid transparent;overflow:hidden;transition:border .15s,background .15s"
+                            <div class="dropdown"
+                                style="background:#f8f9fa;border-radius:.55rem;border:1.5px solid transparent;transition:border .15s,background .15s"
                                 onfocusin="this.style.borderColor='var(--sk-primary)';this.style.background='#fff'"
                                 onfocusout="this.style.borderColor='transparent';this.style.background='#f8f9fa'">
-                                <span class="px-3" style="color:#adb5bd;font-size:14px;flex-shrink:0">
-                                    <i class="bi bi-people"></i>
-                                </span>
-                                <select wire:model="position"
-                                    class="border-0 shadow-none form-select @error('position') is-invalid @enderror"
-                                    style="background:transparent;font-size:13.5px;padding:9px 10px 9px 0">
-                                    <option value="">Pilih...</option>
-                                    <option value="husband" {{ $role !== 'admin' ? 'disabled' : '' }}>Husband</option>
-                                    <option value="wife" {{ $role === 'admin' ? 'disabled' : '' }}>Wife</option>
-                                    <option value="child" {{ $role === 'admin' ? 'disabled' : '' }}>Child</option>
-                                </select>
+                                <button type="button" data-bs-toggle="dropdown"
+                                    class="btn w-100 d-flex align-items-center gap-2 border-0 shadow-none @error('position') is-invalid @enderror"
+                                    style="background:transparent;font-size:13.5px;padding:9px 12px;color:{{ $position ? '#2d3436' : '#adb5bd' }}">
+                                    <i class="bi bi-people" style="color:#adb5bd;font-size:14px;flex-shrink:0"></i>
+                                    <span
+                                        class="flex-grow-1 text-start">{{ $position ? ucfirst($position) : 'Pilih...' }}</span>
+                                    <i class="bi bi-chevron-down"
+                                        style="font-size:11px;color:#adb5bd;flex-shrink:0"></i>
+                                </button>
+                                <ul class="dropdown-menu w-100 shadow-sm py-1"
+                                    style="border-radius:.55rem;border:1px solid rgba(0,0,0,.08);font-size:13.5px">
+                                    <li>
+                                        <a class="dropdown-item py-2 {{ $role !== 'admin' ? 'disabled text-muted' : '' }}"
+                                            href="#" wire:click.prevent="$set('position', 'husband')">
+                                            Husband
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 {{ $role === 'admin' ? 'disabled text-muted' : '' }}"
+                                            href="#" wire:click.prevent="$set('position', 'wife')">
+                                            Wife
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 {{ $role === 'admin' ? 'disabled text-muted' : '' }}"
+                                            href="#" wire:click.prevent="$set('position', 'child')">
+                                            Child
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                             @error('position')
                                 <div class="text-danger mt-1" style="font-size:12px">{{ $message }}</div>
                             @enderror
                         </div>
+
                     </div>
 
                     {{-- Password --}}
@@ -168,20 +196,19 @@
                     </div>
                 </div>
 
-                {{-- Footer Buttons --}}
+                {{-- Footer --}}
                 <div class="px-4 pb-4 d-flex align-items-center justify-content-between gap-2">
-                    {{--  Tombol Reset Manual (hanya muncul saat create mode) --}}
                     @if (!$isEditMode)
                         <button type="button" wire:click="resetForm"
                             class="btn btn-link text-decoration-none fw-bold" style="color:#dc3545;font-size:13.5px">
                             <i class="bi bi-trash3"></i> Bersihkan
                         </button>
                     @else
-                        <div></div> {{-- Spacer --}}
+                        <div></div>
                     @endif
 
                     <div class="d-flex align-items-center gap-2">
-                        <button type="button" wire:click="closeModal"
+                        <button type="button" wire:click="closeModal" data-bs-dismiss="modal"
                             class="btn btn-link text-decoration-none fw-bold"
                             style="color:#adb5bd;font-size:13.5px">Tutup</button>
                         <button type="submit" class="btn btn-success rounded-pill d-flex align-items-center gap-2"
@@ -194,4 +221,4 @@
             </form>
         </div>
     </div>
-@endif
+</div>

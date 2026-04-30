@@ -1,28 +1,4 @@
 <div>
-
-    {{-- ── Toast ── --}}
-    @if (session()->has('success'))
-        <div class="d-flex align-items-center gap-3 mb-4 p-3"
-            style="background:#fff;border-radius:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid var(--sk-primary)">
-            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                style="width:32px;height:32px;background:var(--sk-primary-light);color:var(--sk-primary);font-size:15px">
-                <i class="bi bi-check-lg"></i>
-            </div>
-            <span class="fw-semibold" style="font-size:13.5px;color:#0f5132">{{ session('success') }}</span>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="d-flex align-items-center gap-3 mb-4 p-3"
-            style="background:#fff;border-radius:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid #dc3545">
-            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                style="width:32px;height:32px;background:#f8d7da;color:#dc3545;font-size:15px">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-            </div>
-            <span class="fw-semibold" style="font-size:13.5px;color:#842029">{{ session('error') }}</span>
-        </div>
-    @endif
-
     {{-- ── Search + Tambah User ── --}}
     <div class="d-flex align-items-center gap-3 mb-4 px-3"
         style="background:#fff;border-radius:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.05);height:50px">
@@ -90,10 +66,7 @@
                                 <button wire:click="edit({{ $user->id }})" class="sk-icon-btn me-1">
                                     <i class="bi bi-pencil-square" style="color:var(--sk-primary)"></i>
                                 </button>
-                                <button wire:click="delete({{ $user->id }})"
-                                    wire:confirm="Data ini akan hilang selamanya. Lanjutkan?"
-                                    onclick="return confirm('Data ini akan hilang selamanya. Lanjutkan?')"
-                                    class="sk-icon-btn">
+                                <button wire:click="confirmDelete({{ $user->id }})" class="sk-icon-btn">
                                     <i class="bi bi-trash3 text-danger"></i>
                                 </button>
                             </td>
@@ -114,7 +87,8 @@
         </div>
     </div>
 
-    {{-- ── Include Modal Partial ── --}}
-    @include('livewire.users.partials.modal')
+    {{-- ── Include Modal Partials ── --}}
+    @include('livewire.users.partials.modal-form')
+    @include('livewire.users.partials.modal-delete')
 
 </div>
