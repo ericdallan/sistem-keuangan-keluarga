@@ -1,33 +1,18 @@
-<div>
-    {{-- ── Page Header ── --}}
-    <div class="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
-        <div>
-            <h5 class="fw-800 mb-0" style="color:var(--sk-text)">
-                {{ $isAdmin ? 'Daftar Pengeluaran' : 'Pengeluaran Saya' }}
-            </h5>
-            <p class="text-muted small mb-0 mt-1">
-                {{ $isAdmin ? 'Kelola & setujui pengeluaran seluruh pengguna' : 'Riwayat pengeluaran yang Anda ajukan' }}
-            </p>
-        </div>
-        @if (!$isAdmin)
-            <a href="{{ route('expenses.create') }}" wire:navigate class="btn btn-sm fw-700 text-white"
-                style="background:var(--sk-primary-gradient);border-radius:0.6rem;padding:.5rem 1.1rem;border:none;box-shadow:0 3px 10px rgba(25,135,84,.25)">
-                <i class="bi bi-plus-lg me-1"></i> Tambah Pengeluaran
-            </a>
-        @endif
-    </div>
-
+<div @if (!$isAdmin) wire:poll.15s @endif>
     {{-- ── Filter Bar ── --}}
     <div class="sk-card mb-4">
         <div class="row g-2 align-items-end">
-            <div class="col-12 col-md-4">
+            {{-- Cari --}}
+            <div class="col-12 col-md-3">
                 <label class="form-label small fw-600 mb-1">Cari</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" wire:model.live.debounce.400ms="search"
-                        class="form-control border-start-0 ps-0" placeholder="Cari deskripsi...">
+                    <input type="text" wire:model.live.debounce.400ms="search" class="form-control border-start-0 ps-0"
+                        placeholder="Deskripsi...">
                 </div>
             </div>
+
+            {{-- Status --}}
             <div class="col-6 col-md-2">
                 <label class="form-label small fw-600 mb-1">Status</label>
                 <select wire:model.live="status" class="form-select form-select-sm">
@@ -37,32 +22,52 @@
                     <option value="rejected">Ditolak</option>
                 </select>
             </div>
+
+            {{-- Bulan --}}
             <div class="col-6 col-md-2">
                 <label class="form-label small fw-600 mb-1">Bulan</label>
                 <select wire:model.live="month" class="form-select form-select-sm">
                     <option value="">Semua</option>
                     @foreach (range(1, 12) as $m)
                         <option value="{{ $m }}">
-                            {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                            {{ \Carbon\Carbon::create()->month($m)->translatedFormat('M') }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-6 col-md-2">
+
+            {{-- Tahun --}}
+            <div class="col-6 col-md-1">
                 <label class="form-label small fw-600 mb-1">Tahun</label>
                 <select wire:model.live="year" class="form-select form-select-sm">
-                    <option value="">Semua</option>
+                    <option value="">All</option>
                     @foreach (range(now()->year, now()->year - 4) as $y)
                         <option value="{{ $y }}">{{ $y }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-6 col-md-2">
-                <label class="form-label small fw-600 mb-1">Per Halaman</label>
+
+            {{-- Per Halaman --}}
+            <div class="col-6 col-md-1">
+                <label class="form-label small fw-600 mb-1">Show</label>
                 <select wire:model.live="perPage" class="form-select form-select-sm">
                     <option value="10">10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
                 </select>
+            </div>
+
+            {{-- Tombol Tambah (User Only) --}}
+            <div class="col-12 col-md-auto">
+                @if (!$isAdmin)
+                    <a href="{{ route('expenses.create') }}" wire:navigate
+                        class="btn btn-sm fw-700 text-white w-100 d-flex align-items-center justify-content-center gap-1"
+                        style="background:var(--sk-primary-gradient);border-radius:0.6rem;padding:.5rem 1rem;border:none;box-shadow:0 3px 10px rgba(25,135,84,.25);height:31px">
+                        <i class="bi bi-plus-lg"></i> <span>Tambah</span>
+                    </a>
+                @else
+                    {{-- Placeholder untuk admin agar layout tetap seimbang --}}
+                    <div class="d-none d-md-block" style="height:31px"></div>
+                @endif
             </div>
         </div>
     </div>
@@ -111,37 +116,18 @@
                             <td class="text-muted">{{ $expense->date->format('d M Y') }}</td>
                             <td>
                                 @if ($expense->evidence_path)
-                                    <a href="{{ asset('storage/' . $expense->evidence_path) }}" target="_blank"
+                                    <button wire:click="previewEvidence('{{ $expense->uuid_expenses }}')"
                                         class="btn btn-sm btn-outline-secondary py-0 px-2"
                                         style="border-radius:.4rem;font-size:.75rem">
                                         <i class="bi bi-paperclip me-1"></i> Lihat
-                                    </a>
+                                    </button>
                                 @else
                                     <span class="text-muted small">—</span>
                                 @endif
                             </td>
                             <td>
                                 @php
-                                    $badge = match ($expense->status) {
-                                        'approved' => [
-                                            'bg' => '#d1e7dd',
-                                            'color' => '#0a5c36',
-                                            'label' => 'Disetujui',
-                                            'icon' => 'bi-check-circle-fill',
-                                        ],
-                                        'rejected' => [
-                                            'bg' => '#f8d7da',
-                                            'color' => '#842029',
-                                            'label' => 'Ditolak',
-                                            'icon' => 'bi-x-circle-fill',
-                                        ],
-                                        default => [
-                                            'bg' => '#fff3cd',
-                                            'color' => '#664d03',
-                                            'label' => 'Pending',
-                                            'icon' => 'bi-clock-fill',
-                                        ],
-                                    };
+                                    $badge = $expense->status_badge;
                                 @endphp
                                 <span class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill fw-600"
                                     style="background:{{ $badge['bg'] }};color:{{ $badge['color'] }};font-size:.75rem">
@@ -173,7 +159,7 @@
                                                 class="sk-icon-btn" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <button wire:click="confirmDelete({{ $expense->id }})"
+                                            <button wire:click="confirmDelete('{{ $expense->uuid_expenses }}')"
                                                 class="sk-icon-btn text-danger" title="Hapus">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
@@ -243,7 +229,8 @@
                         </div>
                         <h6 class="fw-700 mb-1">Setujui Pengeluaran?</h6>
                         <p class="text-muted small mb-4">Status pengeluaran ini akan diubah menjadi
-                            <strong>Disetujui</strong>.</p>
+                            <strong>Disetujui</strong>.
+                        </p>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-light fw-600 w-50"
                                 data-bs-dismiss="modal">Batal</button>
@@ -260,7 +247,8 @@
                         </div>
                         <h6 class="fw-700 mb-1">Tolak Pengeluaran?</h6>
                         <p class="text-muted small mb-4">Status pengeluaran ini akan diubah menjadi
-                            <strong>Ditolak</strong>.</p>
+                            <strong>Ditolak</strong>.
+                        </p>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-light fw-600 w-50"
                                 data-bs-dismiss="modal">Batal</button>
@@ -271,6 +259,53 @@
                             </button>
                         </div>
                     @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Modal: Preview Evidence ── --}}
+    <div class="modal fade" id="modal-preview-evidence" tabindex="-1" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow" style="border-radius:1rem">
+
+                {{-- Header --}}
+                <div class="modal-header border-0 pb-0">
+                    <h6 class="fw-700 mb-0">
+                        <i class="bi bi-eye me-2"></i>Preview Bukti
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        wire:click="closePreview"></button>
+                </div>
+
+                {{-- Body --}}
+                <div class="modal-body p-4 text-center">
+
+                    @if ($previewEvidenceUrl)
+
+                        {{-- Image Preview --}}
+                        @if ($previewEvidenceType === 'image')
+                            <img src="{{ $previewEvidenceUrl }}" alt="Bukti Pengeluaran"
+                                class="img-fluid rounded shadow-sm" style="max-height:70vh; object-fit:contain;">
+
+                            {{-- PDF Preview --}}
+                        @else
+                            <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+                                <iframe src="{{ $previewEvidenceUrl }}" style="border:none;"></iframe>
+                            </div>
+                            <a href="{{ $previewEvidenceUrl }}" target="_blank"
+                                class="btn btn-sm btn-outline-primary mt-3">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>
+                                Buka di Tab Baru
+                            </a>
+                        @endif
+                    @else
+                        <div class="py-5 text-muted">
+                            <i class="bi bi-image d-block mb-2" style="font-size:2.5rem;opacity:.3"></i>
+                            <span class="small">Memuat...</span>
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>

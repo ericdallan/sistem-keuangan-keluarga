@@ -26,6 +26,18 @@ class Index extends Component
     public ?int $actionId = null;
     public string $actionType = ''; // 'approve' | 'reject'
 
+    // Evidence Preview
+    public ?string $previewEvidenceUrl = null;
+    public ?string $previewEvidenceType = null; // 'image' | 'pdf'
+
+    // Listener untuk event dari admin
+    protected function getListeners(): array
+    {
+        return [
+            'expense-status-changed' => 'handleStatusChange',
+        ];
+    }
+
     protected ExpenseService $service;
 
     public function boot(ExpenseService $service): void
@@ -62,13 +74,18 @@ class Index extends Component
 
     // ── Delete ────────────────────────────────────────────────────
 
-    public function confirmDelete(int $id): void
+    public function confirmDelete(string $uuid): void
     {
-        $expense = $this->service->findOrFail($id);
+        // Gunakan where('uuid_expenses', $uuid) untuk mencari data
+        $expense = Expense::where('uuid_expenses', $uuid)->firstOrFail();
+
         $this->authorize('delete', $expense);
 
-        $this->deleteId          = $id;
+        // Tetap simpan ID numerik ke $this->deleteId jika memang 
+        // dibutuhkan untuk proses hapus di method destroy()
+        $this->deleteId          = $expense->id;
         $this->deleteDescription = $expense->description;
+
         $this->dispatch('open-modal', modal: 'modal-delete-expense');
     }
 
@@ -81,6 +98,34 @@ class Index extends Component
         $this->dispatch('close-modal', modal: 'modal-delete-expense');
         $this->dispatch('toast', message: 'Pengeluaran berhasil dihapus.', type: 'success');
         $this->deleteId = null;
+    }
+
+    // Preview Evidence
+    public function previewEvidence(string $uuid): void
+    {
+        // Gunakan findByUuid atau query biasa dengan first()
+        $expense = Expense::where('uuid_expenses', $uuid)->first();
+
+        if (!$expense) {
+            $this->dispatch('toast', message: 'Data pengeluaran tidak ditemukan.', type: 'error');
+            return;
+        }
+
+        if (!$expense->evidence_path) {
+            $this->dispatch('toast', message: 'Bukti tidak ditemukan.', type: 'error');
+            return;
+        }
+
+        $this->previewEvidenceUrl = asset('storage/' . $expense->evidence_path);
+        $ext = strtolower(pathinfo($expense->evidence_path, PATHINFO_EXTENSION));
+        $this->previewEvidenceType = in_array($ext, ['jpg', 'jpeg', 'png']) ? 'image' : 'pdf';
+
+        $this->dispatch('open-modal', modal: 'modal-preview-evidence');
+    }
+
+    public function closePreview(): void
+    {
+        $this->reset('previewEvidenceUrl', 'previewEvidenceType');
     }
 
     // ── Approve / Reject ──────────────────────────────────────────
@@ -100,14 +145,48 @@ class Index extends Component
 
         if ($this->actionType === 'approve') {
             $this->service->approve($expense);
-            $this->dispatch('toast', message: 'Pengeluaran disetujui.', type: 'success');
+            $message = 'Pengeluaran disetujui.';
+            $type = 'success';
         } else {
             $this->service->reject($expense);
-            $this->dispatch('toast', message: 'Pengeluaran ditolak.', type: 'error');
+            $message = 'Pengeluaran ditolak.';
+            $type = 'error';
         }
 
+        $this->dispatch(
+            'expense-status-changed',
+            expenseId: $this->actionId,
+            userId: $expense->user_id,
+            status: $this->actionType
+        );
+
         $this->dispatch('close-modal', modal: 'modal-action-expense');
+        $this->dispatch('toast', message: $message, type: $type);
         $this->actionId = null;
+    }
+
+    public function handleStatusChange($data = null): void
+    {
+        if (!is_array($data) || !isset($data['userId'])) {
+            return;
+        }
+
+        if ((int) $data['userId'] !== Auth::id()) {
+            return;
+        }
+
+        // 🎯 Toast SEBELUM refresh
+        $statusLabel = ($data['status'] ?? '') === 'approve' ? 'disetujui' : 'ditolak';
+        $toastType = ($data['status'] ?? '') === 'approve' ? 'success' : 'error';
+
+        $this->dispatch(
+            'toast',
+            message: "Pengeluaran {$statusLabel} oleh admin.",
+            type: $toastType
+        );
+
+        // Refresh setelah toast
+        $this->dispatch('$refresh');
     }
 
     public function render()
@@ -115,8 +194,8 @@ class Index extends Component
         $expenses = $this->service->getList(
             search: $this->search ?: null,
             status: $this->status ?: null,
-            month: $this->month  ? (int) $this->month  : null,
-            year: $this->year   ? (int) $this->year   : null,
+            month: $this->month ? (int) $this->month : null,
+            year: $this->year ? (int) $this->year : null,
             perPage: $this->perPage,
         );
 
@@ -124,7 +203,7 @@ class Index extends Component
 
         return view('livewire.expenses.index', [
             'expenses' => $expenses,
-            'isAdmin'  => $isAdmin,
+            'isAdmin' => $isAdmin,
         ])->layout('livewire.layout.app', ['title' => $isAdmin ? 'Pengeluaran' : 'Pengeluaran Saya']);
     }
 }

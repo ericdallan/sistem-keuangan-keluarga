@@ -132,7 +132,7 @@
                         pending.
                     </span>
                 </div>
-                <a href="{{ route('my-expenses.index') }}" class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
+                <a href="{{ route('expenses.index') }}" class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
                     style="background:#0dcaf0;color:#fff;font-size:.75rem;padding:5px 14px">
                     Cek Status
                 </a>
@@ -270,7 +270,7 @@
 
                         {{-- User Only: Pengeluaran Saya --}}
                         @if (auth()->user()->role === 'user')
-                            <a href="{{ route('my-expenses.index') }}"
+                            <a href="{{ route('expenses.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
                                 onmouseover="this.style.background='#e2e3e5';this.querySelector('span').style.color='#41464b'"
@@ -288,7 +288,7 @@
 
                         {{-- User Only: Pengajuan Dana Saya --}}
                         @if (auth()->user()->role === 'user')
-                            <a href="{{ route('my-fund-requests.index') }}"
+                            <a href="{{ route('fund-requests.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
                                 onmouseover="this.style.background='var(--sk-primary-light)';this.querySelector('span').style.color='var(--sk-primary)'"
@@ -317,7 +317,7 @@
                         <h5 class="fw-bold mb-0" style="font-size:1rem">
                             {{ auth()->user()->role === 'admin' ? 'Aktivitas Pengeluaran Terbaru' : 'Pengeluaran Saya Terbaru' }}
                         </h5>
-                        <a href="{{ auth()->user()->role === 'admin' ? route('expenses.index') : route('my-expenses.index') }}"
+                        <a href="{{ auth()->user()->role === 'admin' ? route('expenses.index') : route('expenses.index') }}"
                             class="text-decoration-none fw-semibold" style="font-size:.8rem;color:var(--sk-primary)">
                             Lihat Semua <i class="bi bi-arrow-right"></i>
                         </a>
@@ -370,22 +370,14 @@
                                         </td>
                                         <td class="py-3">
                                             @php
-                                                $statusStyle = match ($expense->status) {
-                                                    'approved' => 'background:#d1e7dd;color:#0f5132',
-                                                    'rejected' => 'background:#f8d7da;color:#842029',
-                                                    default => 'background:#fff3cd;color:#856404',
-                                                };
-                                                $statusIcon = match ($expense->status) {
-                                                    'approved' => 'bi-check-circle',
-                                                    'rejected' => 'bi-x-circle',
-                                                    default => 'bi-hourglass-split',
-                                                };
+                                                $badge = $expense->statusBadge;
                                             @endphp
+
                                             <span
                                                 class="rounded-pill px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1"
-                                                style="font-size:.7rem;{{ $statusStyle }}">
-                                                <i class="bi {{ $statusIcon }}"></i>
-                                                {{ ucfirst($expense->status) }}
+                                                style="font-size: .7rem; background: {{ $badge['bg'] }}; color: {{ $badge['color'] }};">
+                                                <i class="bi {{ $badge['icon'] }}"></i>
+                                                {{ $badge['label'] }}
                                             </span>
                                         </td>
                                         <td class="pe-4 py-3 text-end">

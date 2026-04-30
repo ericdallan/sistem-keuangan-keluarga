@@ -17,6 +17,8 @@ class Edit extends Component
     public string $description = '';
     public string $date        = '';
     public $evidence           = null;
+    public ?string $previewEvidenceUrl = null;
+    public ?string $previewEvidenceType = null;
 
     protected ExpenseService $service;
 
@@ -33,7 +35,27 @@ class Edit extends Component
         $this->description = $expense->description;
         $this->date        = $expense->date->format('Y-m-d');
     }
+    public function previewEvidence(): void
+    {
+        // Karena kita sudah punya $this->expense, tidak perlu query lagi
+        if (!$this->expense->evidence_path) {
+            $this->dispatch('toast', message: 'Bukti tidak ditemukan.', type: 'error');
+            return;
+        }
 
+        $this->previewEvidenceUrl = asset('storage/' . $this->expense->evidence_path);
+
+        $ext = strtolower(pathinfo($this->expense->evidence_path, PATHINFO_EXTENSION));
+        $this->previewEvidenceType = in_array($ext, ['jpg', 'jpeg', 'png']) ? 'image' : 'pdf';
+
+        $this->dispatch('open-modal', modal: 'modal-preview-evidence');
+    }
+
+    public function closePreview(): void
+    {
+        $this->reset('previewEvidenceUrl', 'previewEvidenceType');
+    }
+    
     protected function rules(): array
     {
         return [

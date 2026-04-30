@@ -45,9 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Index tidak di sini karena admin juga perlu akses (read-only)
         Route::prefix('expenses')->name('expenses.')->group(function () {
             Route::get('/create', Expenses\Create::class)->name('create');
-            Route::get('/{expense}/edit', Expenses\Edit::class)->name('edit');
+            Route::get('/{expense:uuid_expenses}/edit', Expenses\Edit::class)->name('edit');
         });
-        Route::get('/my-fund-requests', FundRequests\Index::class)->name('my-fund-requests.index');
     });
 
     // ── Shared (Admin & User) ─────────────────────────────────────

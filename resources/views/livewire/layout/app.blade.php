@@ -57,10 +57,10 @@
     @stack('scripts')
     <script>
         document.addEventListener('livewire:initialized', () => {
-            Livewire.on('open-modal', ({
-                modal
-            }) => {
-                const el = document.getElementById(modal);
+            Livewire.on('open-modal', (data) => {
+                // Mendukung pengiriman parameter 'modal' ATAU 'id'
+                const modalId = data.modal || data.id;
+                const el = document.getElementById(modalId);
                 if (el) bootstrap.Modal.getOrCreateInstance(el).show();
             });
 
@@ -70,6 +70,7 @@
                 const el = document.getElementById(modal);
                 if (el) bootstrap.Modal.getOrCreateInstance(el).hide();
             });
+
         });
 
         function skLayout() {

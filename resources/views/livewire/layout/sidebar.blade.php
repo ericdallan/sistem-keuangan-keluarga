@@ -43,13 +43,13 @@
             } else {
                 $pengelolaan = [
                     [
-                        'route' => 'my-expenses.index',
+                        'route' => 'expenses.index',
                         'icon' => 'bi-arrow-up-circle',
                         'label' => 'Pengeluaran Saya',
                         'match' => 'my-expenses.*',
                     ],
                     [
-                        'route' => 'my-fund-requests.index',
+                        'route' => 'fund-requests.index',
                         'icon' => 'bi-cash-stack',
                         'label' => 'Pengajuan Dana Saya',
                         'match' => 'my-fund-requests.*',
