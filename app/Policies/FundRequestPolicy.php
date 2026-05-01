@@ -12,6 +12,11 @@ class FundRequestPolicy
         return $user->role === 'admin' || $fundRequest->user_id === $user->id;
     }
 
+    public function create(User $user): bool
+    {
+        return $user->role === 'user';
+    }
+
     public function update(User $user, FundRequest $fundRequest): bool
     {
         if ($user->role === 'user') {

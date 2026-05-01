@@ -1,0 +1,177 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\FundRequest;
+use App\Models\Income;
+use App\Models\Notification;
+use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+
+class FundRequestService
+{
+    /**
+     * List pengajuan dana.
+     * Admin: semua user. User: hanya miliknya.
+     */
+    public function getList(
+        ?string $status = null,
+        ?int $userId = null,
+        ?string $month = null,
+        int $perPage = 10
+    ): LengthAwarePaginator {
+        $query = FundRequest::with('user')->latest();
+
+        if (Auth::user()->role === 'user') {
+            $query->where('user_id', Auth::id());
+        } else {
+            $query->when($userId, fn($q) => $q->where('user_id', $userId));
+        }
+
+        $query->when($status, fn($q) => $q->where('status', $status))
+            ->when($month,  fn($q) => $q->where('month', $month));
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Find single fund request by ID atau UUID.
+     */
+    public function findOrFail($id): FundRequest
+    {
+        if (is_numeric($id)) {
+            return FundRequest::with('user')->findOrFail($id);
+        }
+
+        return FundRequest::with('user')->where('uuid_fund_requests', $id)->firstOrFail();
+    }
+
+    /**
+     * Buat pengajuan dana baru (oleh user).
+     */
+    public function store(array $data): FundRequest
+    {
+        $fundRequest = FundRequest::create([
+            'user_id' => Auth::id(),
+            'amount'  => $data['amount'],
+            'reason'  => $data['reason'],
+            'date'    => now()->toDateString(),
+            'month'   => $data['month'],
+            'status'  => 'pending',
+        ]);
+
+        $this->notifyAdmins($fundRequest);
+
+        return $fundRequest;
+    }
+
+    /**
+     * Update pengajuan dana (hanya jika masih pending).
+     */
+    public function update(FundRequest $fundRequest, array $data): FundRequest
+    {
+        $fundRequest->update([
+            'amount' => $data['amount'],
+            'reason' => $data['reason'],
+            'month'  => $data['month'],
+        ]);
+
+        return $fundRequest->fresh();
+    }
+
+    /**
+     * Approve pengajuan dana.
+     * Otomatis tambah ke Master Pemasukan bulan terkait.
+     */
+    public function approve(FundRequest $fundRequest): void
+    {
+        DB::transaction(function () use ($fundRequest) {
+            $fundRequest->update(['status' => 'approved']);
+
+            $incomeDate = Carbon::createFromFormat('Y-m', $fundRequest->month)
+                ->startOfMonth()
+                ->toDateString();
+
+            Income::create([
+                'uuid_incomes' => (string) Str::uuid(),
+                'user_id'      => $fundRequest->user_id,
+                'amount'       => $fundRequest->amount,
+                'description'  => 'Pencairan Dana: ' . $fundRequest->reason,
+                'date'         => $incomeDate,
+                'category'     => 'fund_request',
+            ]);
+        });
+
+        $this->notifyUser($fundRequest, 'approved');
+    }
+
+    /**
+     * Reject pengajuan dana.
+     */
+    public function reject(FundRequest $fundRequest, ?string $reason = null): void
+    {
+        $fundRequest->update(['status' => 'rejected']);
+
+        $this->notifyUser($fundRequest, 'rejected');
+    }
+
+    /**
+     * Hapus pengajuan dana.
+     */
+    public function delete(FundRequest $fundRequest): void
+    {
+        $fundRequest->delete();
+    }
+
+    /**
+     * Jumlah pengajuan pending (untuk badge notifikasi admin).
+     */
+    public function countPending(): int
+    {
+        return FundRequest::where('status', 'pending')->count();
+    }
+
+    // ── Private helpers ───────────────────────────────────────────
+
+    private function notifyAdmins(FundRequest $fundRequest): void
+    {
+        $admins = User::where('role', 'admin')->get();
+
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id'         => $admin->id,
+                'notifiable_id'   => $fundRequest->id,
+                'notifiable_type' => FundRequest::class,
+                'data' => [
+                    'icon'  => 'bi-cash-coin',
+                    'color' => 'text-primary',
+                    'title' => 'Pengajuan Dana Baru',
+                    'body'  => $fundRequest->user->name . ': Rp ' . number_format($fundRequest->amount, 0, ',', '.'),
+                    'url'   => route('fund-requests.index'),
+                ],
+            ]);
+        }
+    }
+
+    private function notifyUser(FundRequest $fundRequest, string $status): void
+    {
+        $isApproved = $status === 'approved';
+
+        Notification::create([
+            'user_id'         => $fundRequest->user_id,
+            'notifiable_id'   => $fundRequest->id,
+            'notifiable_type' => FundRequest::class,
+            'data' => [
+                'icon'  => $isApproved ? 'bi-check-circle' : 'bi-x-circle',
+                'color' => $isApproved ? 'text-success' : 'text-danger',
+                'title' => 'Pengajuan Dana ' . ($isApproved ? 'Disetujui' : 'Ditolak'),
+                'body'  => 'Pengajuan dana Rp ' . number_format($fundRequest->amount, 0, ',', '.') . ' Anda telah ' . ($isApproved ? 'disetujui.' : 'ditolak.'),
+                'url'   => route('fund-requests.index'),
+            ],
+        ]);
+    }
+}
