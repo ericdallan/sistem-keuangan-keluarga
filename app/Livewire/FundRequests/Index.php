@@ -8,28 +8,42 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Komponen Livewire untuk menampilkan daftar pengajuan dana dengan fitur
+ * pencarian, filter, paginasi, hapus, serta persetujuan/penolakan.
+ */
 class Index extends Component
 {
     use WithPagination;
 
+    // Properti filter dan pencarian
     public string $search  = '';
     public string $status  = '';
     public string $month   = '';
     public int    $perPage = 10;
 
-    public ?int    $deleteId          = null;
+    // Properti untuk manajemen hapus (delete)
+    public ?string $deleteId          = null;
     public string  $deleteDescription = '';
 
-    public ?int    $actionId   = null;
-    public string  $actionType = '';
+    // Properti untuk manajemen aksi (approve/reject)
+    public ?string  $actionId   = null;
+    public string   $actionType = '';
 
+    /** @var FundRequestService Service untuk logika bisnis pengajuan dana */
     protected FundRequestService $service;
 
+    /**
+     * Inisialisasi service melalui dependency injection.
+     */
     public function boot(FundRequestService $service): void
     {
         $this->service = $service;
     }
 
+    /**
+     * Mengonfigurasi parameter URL agar dapat dibagikan (searchable).
+     */
     protected function queryString(): array
     {
         return [
@@ -39,6 +53,8 @@ class Index extends Component
         ];
     }
 
+    // --- Hooks Update ---
+
     public function updatedStatus(): void
     {
         $this->resetPage();
@@ -47,20 +63,30 @@ class Index extends Component
     {
         $this->resetPage();
     }
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
 
     // ── Delete ────────────────────────────────────────────────────
 
-    public function confirmDelete(int $id): void
+    /**
+     * Menyiapkan modal konfirmasi penghapusan data.
+     */
+    public function confirmDelete(string $uuid): void
     {
-        $fund = $this->service->findOrFail($id);
+        $fund = $this->service->findOrFail($uuid);
         $this->authorize('delete', $fund);
 
-        $this->deleteId          = $fund->id;
+        $this->deleteId          = $fund->uuid_fund_requests;
         $this->deleteDescription = $fund->reason;
 
         $this->dispatch('open-modal', modal: 'modal-delete-fund');
     }
 
+    /**
+     * Mengeksekusi penghapusan data setelah konfirmasi.
+     */
     public function destroy(): void
     {
         $fund = $this->service->findOrFail($this->deleteId);
@@ -74,14 +100,20 @@ class Index extends Component
 
     // ── Approve / Reject ──────────────────────────────────────────
 
-    public function confirmAction(int $id, string $type): void
+    /**
+     * Menyiapkan modal konfirmasi untuk persetujuan atau penolakan.
+     */
+    public function confirmAction(string $uuid, string $type): void
     {
         $this->authorize('approve', FundRequest::class);
-        $this->actionId   = $id;
+        $this->actionId   = $uuid;
         $this->actionType = $type;
         $this->dispatch('open-modal', modal: 'modal-action-fund');
     }
 
+    /**
+     * Mengeksekusi aksi persetujuan atau penolakan berdasarkan tipe.
+     */
     public function executeAction(): void
     {
         $this->authorize('approve', FundRequest::class);
@@ -102,11 +134,9 @@ class Index extends Component
         $this->actionId = null;
     }
 
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
-
+    /**
+     * Render daftar pengajuan dana.
+     */
     public function render()
     {
         $isAdmin = Auth::user()->isAdmin();

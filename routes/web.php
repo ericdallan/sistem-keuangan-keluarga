@@ -58,7 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('fund-requests')->name('fund-requests.')->group(function () {
         Route::get('/', FundRequests\Index::class)->name('index');
         Route::get('/create', FundRequests\Create::class)->name('create');
-        Route::get('/{fundRequest}/edit', FundRequests\Edit::class)->name('edit');
+        Route::get('/{fundRequest:uuid_fund_requests}/edit', FundRequests\Edit::class)->name('edit');
     });
 
     // ── Laporan  ───────────────────────────────────────

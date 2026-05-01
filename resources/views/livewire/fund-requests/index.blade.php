@@ -79,7 +79,7 @@
                 <tbody>
                     @forelse ($fundRequests as $fund)
                         @php $badge = $fund->status_badge; @endphp
-                        <tr wire:key="fund-{{ $fund->id }}">
+                        <tr wire:key="fund-{{ $fund->uuid_fund_requests }}">
                             <td class="px-4 text-muted">{{ $fundRequests->firstItem() + $loop->index }}</td>
 
                             @if ($isAdmin)
@@ -124,11 +124,13 @@
                                 <div class="d-flex justify-content-end align-items-center gap-1">
                                     @if ($isAdmin)
                                         @if ($fund->status === 'pending')
-                                            <button wire:click="confirmAction({{ $fund->id }}, 'approve')"
+                                            <button
+                                                wire:click="confirmAction('{{ $fund->uuid_fund_requests }}', 'approve')"
                                                 class="sk-icon-btn text-success" title="Setujui">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
-                                            <button wire:click="confirmAction({{ $fund->id }}, 'reject')"
+                                            <button
+                                                wire:click="confirmAction('{{ $fund->uuid_fund_requests }}', 'reject')"
                                                 class="sk-icon-btn text-danger" title="Tolak">
                                                 <i class="bi bi-x-lg"></i>
                                             </button>
@@ -141,7 +143,7 @@
                                                 class="sk-icon-btn" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <button wire:click="confirmDelete({{ $fund->id }})"
+                                            <button wire:click="confirmDelete('{{ $fund->uuid_fund_requests }}')"
                                                 class="sk-icon-btn text-danger" title="Hapus">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
@@ -218,7 +220,7 @@
                         {{-- Info pencairan otomatis --}}
                         @if ($actionId)
                             @php
-                                $fundForModal = $fundRequests->firstWhere('id', $actionId);
+                                $fundForModal = $fundRequests->firstWhere('uuid_fund_requests', $actionId);
                             @endphp
                             @if ($fundForModal)
                                 <div class="p-3 mb-3 text-start"
