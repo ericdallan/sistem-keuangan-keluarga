@@ -92,7 +92,7 @@
                 </thead>
                 <tbody>
                     @forelse ($expenses as $expense)
-                        <tr wire:key="expense-{{ $expense->id }}">
+                        <tr wire:key="expense-{{ $expense->uuid_expenses }}">
                             <td class="px-4 text-muted">{{ $expenses->firstItem() + $loop->index }}</td>
                             @if ($isAdmin)
                                 <td>
@@ -141,11 +141,13 @@
                                     @if ($isAdmin)
                                         {{-- Admin: Approve & Reject (hanya jika pending) --}}
                                         @if ($expense->status === 'pending')
-                                            <button wire:click="confirmAction({{ $expense->id }}, 'approve')"
+                                            <button
+                                                wire:click="confirmAction('{{ $expense->uuid_expenses }}', 'approve')"
                                                 class="sk-icon-btn text-success" title="Setujui">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
-                                            <button wire:click="confirmAction({{ $expense->id }}, 'reject')"
+                                            <button
+                                                wire:click="confirmAction('{{ $expense->uuid_expenses }}', 'reject')"
                                                 class="sk-icon-btn text-danger" title="Tolak">
                                                 <i class="bi bi-x-lg"></i>
                                             </button>

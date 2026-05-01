@@ -19,11 +19,11 @@ class Index extends Component
     public int $perPage = 10;
 
     // For delete confirmation
-    public ?int $deleteId = null;
+    public ?string  $deleteId = null;
     public string $deleteDescription = '';
 
     // For approve/reject confirmation
-    public ?int $actionId = null;
+    public ?string  $actionId = null;
     public string $actionType = ''; // 'approve' | 'reject'
 
     // Evidence Preview
@@ -132,10 +132,10 @@ class Index extends Component
 
     // ── Approve / Reject ──────────────────────────────────────────
 
-    public function confirmAction(int $id, string $type): void
+    public function confirmAction(string $uuid, string $type): void
     {
         $this->authorize('approve', Expense::class);
-        $this->actionId   = $id;
+        $this->actionId   = $uuid;
         $this->actionType = $type;
         $this->dispatch('open-modal', modal: 'modal-action-expense');
     }

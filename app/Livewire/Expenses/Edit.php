@@ -7,26 +7,41 @@ use App\Services\ExpenseService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * Komponen Livewire untuk mengedit data pengeluaran.
+ * Menangani validasi form, preview bukti, dan pembaruan data via ExpenseService.
+ */
 class Edit extends Component
 {
     use WithFileUploads;
-
+    // ── Model ────────────────────────────────────────────────────────
     public Expense $expense;
 
+    // ── Form Fields ──────────────────────────────────────────────────
     public string $amount      = '';
     public string $description = '';
     public string $date        = '';
     public $evidence           = null;
-    public ?string $previewEvidenceUrl = null;
+
+    // ── Evidence Preview ─────────────────────────────────────────────
+    public ?string $previewEvidenceUrl  = null;
     public ?string $previewEvidenceType = null;
 
+    // ── Dependencies ─────────────────────────────────────────────────
     protected ExpenseService $service;
 
+    /**
+     * Inject ExpenseService melalui metode boot agar tersedia di seluruh siklus hidup komponen.
+     */
     public function boot(ExpenseService $service): void
     {
         $this->service = $service;
     }
 
+    /**
+     * Inisialisasi komponen dengan data pengeluaran yang dipilih.
+     * Memastikan user memiliki izin untuk mengedit pengeluaran ini.
+     */
     public function mount(Expense $expense): void
     {
         $this->authorize('update', $expense);
@@ -35,9 +50,13 @@ class Edit extends Component
         $this->description = $expense->description;
         $this->date        = $expense->date->format('Y-m-d');
     }
+
+    /**
+     * Menampilkan modal preview bukti pengeluaran yang sudah tersimpan.
+     * Menentukan tipe file (gambar atau PDF) berdasarkan ekstensi file.
+     */
     public function previewEvidence(): void
     {
-        // Karena kita sudah punya $this->expense, tidak perlu query lagi
         if (!$this->expense->evidence_path) {
             $this->dispatch('toast', message: 'Bukti tidak ditemukan.', type: 'error');
             return;
@@ -51,11 +70,17 @@ class Edit extends Component
         $this->dispatch('open-modal', modal: 'modal-preview-evidence');
     }
 
+    /**
+     * Menutup modal preview dan mereset URL serta tipe bukti.
+     */
     public function closePreview(): void
     {
         $this->reset('previewEvidenceUrl', 'previewEvidenceType');
     }
-    
+
+    /**
+     * Mendefinisikan aturan validasi untuk form edit pengeluaran.
+     */
     protected function rules(): array
     {
         return [
@@ -66,6 +91,9 @@ class Edit extends Component
         ];
     }
 
+    /**
+     * Mendefinisikan pesan error kustom untuk setiap aturan validasi.
+     */
     protected function messages(): array
     {
         return [
@@ -81,6 +109,10 @@ class Edit extends Component
         ];
     }
 
+    /**
+     * Memproses penyimpanan perubahan data pengeluaran.
+     * Memvalidasi input, memperbarui data via service, lalu redirect ke halaman daftar.
+     */
     public function save(): void
     {
         $this->authorize('update', $this->expense);
@@ -92,6 +124,9 @@ class Edit extends Component
         $this->redirectRoute('expenses.index', navigate: true);
     }
 
+    /**
+     * Merender tampilan komponen dengan layout aplikasi utama.
+     */
     public function render()
     {
         return view('livewire.expenses.edit')
