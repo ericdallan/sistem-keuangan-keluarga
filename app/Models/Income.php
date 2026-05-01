@@ -21,4 +21,25 @@ class Income extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function typeConfig(): array
+    {
+        return [
+            'bg'           => '#d1e7dd',
+            'color'        => '#198754',
+            'icon'         => 'bi-arrow-down-circle',
+            'label'        => 'Pemasukan',
+            'amount_color' => '#198754',
+        ];
+    }
+
+    public static function statusBadge(string $status): array
+    {
+        return [
+            'bg'    => '#d1e7dd',
+            'color' => '#0a5c36',
+            'icon'  => 'bi-check-circle-fill',
+            'label' => 'Tercatat',
+        ];
+    }
 }

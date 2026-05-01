@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 // ── App Components ───────────────────────────────────────────────
-use App\Livewire\Dashboard;
+use App\Livewire\Dashboard\Dashboard;
 use App\Livewire\Income;
 use App\Livewire\Expenses;
 use App\Livewire\FundRequests;

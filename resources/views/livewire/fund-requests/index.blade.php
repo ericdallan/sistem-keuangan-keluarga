@@ -213,14 +213,51 @@
             <div class="modal-content border-0 shadow" style="border-radius:1rem">
                 <div class="modal-body text-center p-4">
                     @if ($actionType === 'approve')
+                        {{-- Icon --}}
                         <div class="mb-3 mx-auto d-flex align-items-center justify-content-center rounded-circle"
                             style="width:52px;height:52px;background:#d1e7dd">
                             <i class="bi bi-check-circle-fill text-success" style="font-size:1.4rem"></i>
                         </div>
+
                         <h6 class="fw-700 mb-1">Setujui Pengajuan?</h6>
-                        <p class="text-muted small mb-4">
-                            Dana akan otomatis masuk ke pemasukan bulan terkait.
-                        </p>
+                        <p class="text-muted small mb-3">Status pengajuan akan diubah menjadi
+                            <strong>Disetujui</strong>.</p>
+
+                        {{-- Info pencairan otomatis --}}
+                        @if ($actionId)
+                            @php
+                                $fundForModal = $fundRequests->firstWhere('id', $actionId);
+                            @endphp
+                            @if ($fundForModal)
+                                <div class="p-3 mb-3 text-start"
+                                    style="background:#f0fdf4;border-radius:.75rem;border:1px solid #bbf7d0">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="bi bi-arrow-down-circle-fill text-success"></i>
+                                        <span class="fw-700 small">Otomatis masuk ke Pemasukan</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Jumlah</span>
+                                        <span class="fw-700" style="color:#198754">
+                                            Rp {{ number_format($fundForModal->amount, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Bulan</span>
+                                        <span class="fw-600">
+                                            {{ \Carbon\Carbon::createFromFormat('Y-m', $fundForModal->month)->translatedFormat('F Y') }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Keterangan</span>
+                                        <span class="fw-600 text-end" style="max-width:140px">
+                                            Pencairan Dana:
+                                            {{ \Illuminate\Support\Str::limit($fundForModal->reason, 30) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-light fw-600 w-50"
                                 data-bs-dismiss="modal">Batal</button>

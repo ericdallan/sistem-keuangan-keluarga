@@ -111,10 +111,20 @@
                         <strong>{{ $summary['pending_fund_requests'] }} pengajuan dana</strong> menunggu persetujuan.
                     </span>
                 </div>
-                <a href="{{ route('expenses.index') }}" class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
-                    style="background:#ffc107;color:#fff;font-size:.75rem;padding:5px 14px">
-                    Proses
-                </a>
+                {{-- Arahkan ke halaman yang punya pending --}}
+                @if ($summary['pending_expenses'] > 0)
+                    <a href="{{ route('expenses.index') }}" class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
+                        style="background:#ffc107;color:#fff;font-size:.75rem;padding:5px 14px">
+                        Proses Pengeluaran
+                    </a>
+                @endif
+                @if ($summary['pending_fund_requests'] > 0)
+                    <a href="{{ route('fund-requests.index') }}"
+                        class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
+                        style="background:#fd7e14;color:#fff;font-size:.75rem;padding:5px 14px">
+                        Proses Pengajuan Dana
+                    </a>
+                @endif
             </div>
         @endif
 
@@ -308,99 +318,9 @@
                 </div>
             </div>
         </div>
-
-        {{-- Recent Activity  --}}
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="p-4" style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h5 class="fw-bold mb-0" style="font-size:1rem">
-                            {{ auth()->user()->role === 'admin' ? 'Aktivitas Pengeluaran Terbaru' : 'Pengeluaran Saya Terbaru' }}
-                        </h5>
-                        <a href="{{ auth()->user()->role === 'admin' ? route('expenses.index') : route('expenses.index') }}"
-                            class="text-decoration-none fw-semibold" style="font-size:.8rem;color:var(--sk-primary)">
-                            Lihat Semua <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <thead style="background:#f8f9fa">
-                                <tr>
-                                    <th class="ps-4 py-3"
-                                        style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em;border:none">
-                                        Tanggal</th>
-                                    <th class="py-3"
-                                        style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em;border:none">
-                                        {{ auth()->user()->role === 'admin' ? 'User' : 'Kategori' }}</th>
-                                    <th class="py-3"
-                                        style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em;border:none">
-                                        Keterangan</th>
-                                    <th class="py-3"
-                                        style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em;border:none">
-                                        Status</th>
-                                    <th class="pe-4 py-3 text-end"
-                                        style="font-size:.68rem;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em;border:none">
-                                        Jumlah</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($summary['recent_expenses'] as $expense)
-                                    <tr style="border-bottom:1px solid rgba(0,0,0,.04)"
-                                        onmouseover="this.style.background='#f8f9fa'"
-                                        onmouseout="this.style.background=''">
-                                        <td class="ps-4 py-3" style="font-size:.85rem;color:#6c757d">
-                                            {{ \Carbon\Carbon::parse($expense->date)->format('d M Y') }}
-                                        </td>
-                                        <td class="py-3">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="sk-avatar"
-                                                    style="width:28px;height:28px;font-size:.75rem">
-                                                    {{ strtoupper(substr($expense->user->name ?? 'U', 0, 1)) }}
-                                                </div>
-                                                <span class="fw-semibold" style="font-size:.85rem">
-                                                    {{ auth()->user()->role === 'admin' ? $expense->user->name ?? 'Unknown' : $expense->category ?? 'Umum' }}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="py-3"
-                                            style="font-size:.85rem;color:var(--sk-text);max-width:250px"
-                                            class="text-truncate">
-                                            {{ $expense->description }}
-                                        </td>
-                                        <td class="py-3">
-                                            @php
-                                                $badge = $expense->statusBadge;
-                                            @endphp
-
-                                            <span
-                                                class="rounded-pill px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1"
-                                                style="font-size: .7rem; background: {{ $badge['bg'] }}; color: {{ $badge['color'] }};">
-                                                <i class="bi {{ $badge['icon'] }}"></i>
-                                                {{ $badge['label'] }}
-                                            </span>
-                                        </td>
-                                        <td class="pe-4 py-3 text-end">
-                                            <span class="fw-bold" style="font-size:.9rem;color:#dc3545">
-                                                -Rp {{ number_format($expense->amount, 0, ',', '.') }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5" style="color:#adb5bd">
-                                            <i class="bi bi-inbox d-block mb-2" style="font-size:2rem"></i>
-                                            Belum ada aktivitas pengeluaran.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="mt-4">
+            <livewire:dashboard.recent-activity />
         </div>
-
     </div>
 </div>
 

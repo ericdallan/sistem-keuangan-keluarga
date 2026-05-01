@@ -42,29 +42,37 @@ class Expense extends Model
 
     // ── Accessors ─────────────────────────────────────────────────
 
-    /**
-     * Get status badge configuration
-     */
-    public function getStatusBadgeAttribute(): array
+    public static function typeConfig(): array
     {
-        return match ($this->status) {
+        return [
+            'bg'    => '#f8d7da',
+            'color' => '#dc3545',
+            'icon'  => 'bi-arrow-up-circle',
+            'label' => 'Pengeluaran',
+            'amount_color' => '#dc3545',
+        ];
+    }
+
+    public static function statusBadge(string $status): array
+    {
+        return match ($status) {
             'approved' => [
                 'bg'    => '#d1e7dd',
                 'color' => '#0a5c36',
-                'label' => 'Disetujui',
                 'icon'  => 'bi-check-circle-fill',
+                'label' => 'Disetujui',
             ],
             'rejected' => [
                 'bg'    => '#f8d7da',
                 'color' => '#842029',
-                'label' => 'Ditolak',
                 'icon'  => 'bi-x-circle-fill',
+                'label' => 'Ditolak',
             ],
             default => [
                 'bg'    => '#fff3cd',
                 'color' => '#664d03',
-                'label' => 'Pending',
                 'icon'  => 'bi-clock-fill',
+                'label' => 'Pending',
             ],
         };
     }
