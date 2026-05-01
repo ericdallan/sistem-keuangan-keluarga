@@ -9,18 +9,22 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Komponen Livewire untuk manajemen data pengguna (CRUD).
+ * Mengatur tampilan, validasi, dan alur logika penyimpanan data pengguna.
+ */
 #[Layout('livewire.layout.app')]
 #[Title('Kelola Pengguna')]
 class Index extends Component
 {
     use WithPagination;
 
-    // ── State ────────────────────────────────────────────────────
-    public bool $isModalOpen    = false;
-    public bool $isEditMode     = false;
-    public ?string $modalError  = null;
+    // ── State (Properti Komponen) ────────────────────────────────
+    public bool $isModalOpen    = false; // Status visibilitas modal form
+    public bool $isEditMode     = false; // Menentukan apakah sedang tambah atau edit
+    public ?string $modalError  = null;  // Pesan error khusus untuk logika bisnis
 
-    // ── Form Fields ──────────────────────────────────────────────
+    // ── Form Fields (Input Binding) ──────────────────────────────
     public $userId, $name, $email, $password;
     public $role     = '';
     public $position = '';
@@ -29,14 +33,15 @@ class Index extends Component
     public $search = '';
 
     // ── Delete Confirmation ──────────────────────────────────────
-    public bool $confirmDeleteModal = false;
+    public bool $confirmDeleteModal = false; // Status visibilitas modal hapus
     public ?int $deleteUserId       = null;
     public ?string $deleteUserName  = null;
 
-    // ── Pagination ───────────────────────────────────────────────
-    protected $paginationTheme = 'bootstrap';
-
     // ── Modal: Create ────────────────────────────────────────────
+    /**
+     * Membuka modal untuk menambah pengguna baru.
+     * Mereset form sebelum modal ditampilkan.
+     */
     public function openCreateModal(): void
     {
         $this->reset(['name', 'email', 'password', 'role', 'position', 'userId', 'isEditMode', 'modalError']);
@@ -45,6 +50,9 @@ class Index extends Component
     }
 
     // ── Modal: Close ─────────────────────────────────────────────
+    /**
+     * Menutup modal dan membersihkan error validasi yang tersisa.
+     */
     public function closeModal(): void
     {
         $this->isModalOpen = false;
@@ -53,6 +61,9 @@ class Index extends Component
     }
 
     // ── Form: Reset ──────────────────────────────────────────────
+    /**
+     * Mengosongkan data pada form dan mereset validasi.
+     */
     public function resetForm(): void
     {
         $this->reset(['name', 'email', 'password', 'role', 'position', 'userId', 'isEditMode', 'modalError']);
@@ -60,6 +71,10 @@ class Index extends Component
     }
 
     // ── CRUD: Save (Create / Update) ─────────────────────────────
+    /**
+     * Menyimpan atau memperbarui data pengguna.
+     * Melakukan validasi input dan pengecekan aturan bisnis (Business Rules).
+     */
     public function save(UserService $userService): void
     {
         $this->modalError = null;
@@ -72,14 +87,14 @@ class Index extends Component
             'password' => $this->isEditMode ? 'nullable|min:8' : 'required|min:8',
         ]);
 
-        // Business rule: hanya boleh satu admin
+        // Aturan Bisnis: Hanya boleh satu admin
         if (!$this->isEditMode) {
             if ($this->role === 'admin' && User::where('role', 'admin')->exists()) {
                 $this->modalError = 'Cukup satu Imam di saf depan. Kalau dua, nanti makmumnya bingung mau amin-kan yang mana.';
                 return;
             }
 
-            // Business rule: hanya boleh satu istri
+            // Aturan Bisnis: Hanya boleh satu istri
             if ($this->position === 'wife' && User::where('position', 'wife')->count() >= 1) {
                 $this->modalError = 'Satu istri adalah sunnah, dua istri adalah fitnah bagi database yang RAM-nya cuma 8GB.';
                 return;
@@ -100,6 +115,9 @@ class Index extends Component
     }
 
     // ── CRUD: Edit ───────────────────────────────────────────────
+    /**
+     * Memuat data pengguna ke dalam form untuk proses pengeditan.
+     */
     public function edit(int $id, UserService $userService): void
     {
         $user = $userService->findOrFail($id);
@@ -117,6 +135,9 @@ class Index extends Component
     }
 
     // ── CRUD: Confirm Delete ─────────────────────────────────────
+    /**
+     * Menampilkan konfirmasi sebelum menghapus pengguna.
+     */
     public function confirmDelete(int $id): void
     {
         $user = User::findOrFail($id);
@@ -129,6 +150,9 @@ class Index extends Component
     }
 
     // ── CRUD: Execute Delete ─────────────────────────────────────
+    /**
+     * Menjalankan proses penghapusan data pengguna melalui service.
+     */
     public function executeDelete(UserService $userService): void
     {
         try {
@@ -147,14 +171,19 @@ class Index extends Component
     }
 
     // ── Lifecycle: Role Changed ──────────────────────────────────
-    // Auto-set posisi ketika role berubah:
-    // admin → husband, user → kosongkan pilihan posisi
+    /**
+     * Hook Livewire yang dipanggil saat properti 'role' berubah.
+     * Jika role admin, otomatis set posisi ke 'husband'.
+     */
     public function updatedRole(string $value): void
     {
         $this->position = $value === 'admin' ? 'husband' : '';
     }
 
     // ── Render ───────────────────────────────────────────────────
+    /**
+     * Merender view dan mengambil data pengguna dengan fitur pencarian.
+     */
     public function render(UserService $userService)
     {
         return view('livewire.users.index', [

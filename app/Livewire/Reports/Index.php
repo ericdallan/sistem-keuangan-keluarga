@@ -8,36 +8,53 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Komponen Livewire untuk menampilkan Laporan Keuangan.
+ * Mengelola filter periode dan pengguna, serta menampilkan data 
+ * pemasukan, pengeluaran, dan permintaan dana dengan pagination.
+ */
 #[Layout('livewire.layout.app')]
 #[Title('Laporan Keuangan')]
 class Index extends Component
 {
     use WithPagination;
 
+    // ── State (Filter) ──────────────────────────────────────────
     public ?string $startMonth = null;
     public ?string $endMonth = null;
     public ?int $selectedUser = null;
 
+    // ── Pagination Settings ─────────────────────────────────────
     public int $incomePerPage = 10;
     public int $expensePerPage = 10;
     public int $fundPerPage = 10;
 
+    // Menambahkan parameter ke URL agar filter tetap ada saat refresh
     protected $queryString = [
         'startMonth' => ['except' => null],
         'endMonth' => ['except' => null],
         'selectedUser' => ['except' => null],
     ];
 
+    /**
+     * Inisialisasi state awal (default ke bulan saat ini).
+     */
     public function mount()
     {
         $this->startMonth = now()->format('Y-m');
         $this->endMonth = now()->format('Y-m');
     }
 
+    /**
+     * Proses render data laporan.
+     * Mengambil data dari ReportService dan melakukan query pagination 
+     * untuk setiap kategori keuangan.
+     */
     public function render(ReportService $service)
     {
         $isAdmin = auth()->user()->role === 'admin';
 
+        // Mengambil data ringkasan laporan dari service
         $report = $service->getReport(
             $this->startMonth,
             $this->endMonth,
@@ -46,12 +63,12 @@ class Index extends Component
 
         $users = $isAdmin ? $service->getUsersForFilter() : [];
 
-        // Paginated queries
+        // Penentuan rentang waktu untuk filter database
         $start = \Carbon\Carbon::parse($this->startMonth . '-01')->startOfMonth();
         $end = \Carbon\Carbon::parse($this->endMonth . '-01')->endOfMonth();
         $filterUserId = $isAdmin ? $this->selectedUser : auth()->id();
 
-        // Income paginated
+        // ── Pemasukan (Income) ──────────────────────────────────
         $incomeQuery = \App\Models\Income::whereBetween('date', [$start, $end])
             ->with('user')
             ->orderByDesc('date');
@@ -60,7 +77,7 @@ class Index extends Component
         }
         $incomes = $incomeQuery->paginate($this->incomePerPage, ['*'], 'incomePage');
 
-        // Expense paginated
+        // ── Pengeluaran (Expense) ───────────────────────────────
         $expenseQuery = \App\Models\Expense::whereBetween('date', [$start, $end])
             ->with('user')
             ->orderByDesc('date');
@@ -69,7 +86,7 @@ class Index extends Component
         }
         $expenses = $expenseQuery->paginate($this->expensePerPage, ['*'], 'expensePage');
 
-        // Fund Request paginated
+        // ── Permintaan Dana (Fund Request) ──────────────────────
         $fundQuery = \App\Models\FundRequest::whereBetween('created_at', [$start, $end])
             ->with('user')
             ->orderByDesc('created_at');
