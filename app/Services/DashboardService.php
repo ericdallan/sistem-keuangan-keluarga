@@ -7,8 +7,17 @@ use App\Models\FundRequest;
 use App\Models\Income;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Service untuk menangani logika bisnis di Dashboard.
+ * Bertanggung jawab atas perhitungan saldo, ringkasan keuangan,
+ * dan penyediaan data untuk aktivitas terbaru serta grafik.
+ */
 class DashboardService
 {
+    /**
+     * Mengambil ringkasan data keuangan (saldo, pemasukan, pengeluaran).
+     * Data dibedakan berdasarkan role: Admin melihat global, User melihat personal.
+     */
     public function getSummary(): array
     {
         $now     = now();
@@ -18,7 +27,7 @@ class DashboardService
         $userId  = Auth::id();
 
         if ($isAdmin) {
-            // ── Admin: semua data global ──────────────────────────
+            // ── Admin: Mengambil seluruh data global sistem ──────────
             $totalIncomeAll   = (float) Income::sum('amount');
             $totalIncomeMonth = (float) Income::whereMonth('date', $month)
                 ->whereYear('date', $year)
@@ -36,8 +45,7 @@ class DashboardService
             $pendingFundRequests = FundRequest::where('status', 'pending')->count();
             $myPendingExpenses   = 0;
         } else {
-            // ── User: data personal ───────────────────────────────
-            // Income user = hasil fund request yang diapprove (user_id = user tsb)
+            // ── User: Mengambil data khusus milik user yang sedang login ──
             $totalIncomeAll   = (float) Income::where('user_id', $userId)->sum('amount');
             $totalIncomeMonth = (float) Income::where('user_id', $userId)
                 ->whereMonth('date', $month)
@@ -77,10 +85,15 @@ class DashboardService
         ];
     }
 
+    /**
+     * Mengambil daftar aktivitas terbaru untuk ditampilkan di dashboard.
+     * Menggabungkan data dari Expense, FundRequest, dan Income (khusus admin).
+     */
     private function getRecentActivities(bool $isAdmin, int $userId): \Illuminate\Support\Collection
     {
         $items = collect();
 
+        // Mengambil data pengeluaran terbaru
         $expenses = Expense::with('user')
             ->when(! $isAdmin, fn($q) => $q->where('user_id', $userId))
             ->latest()->take(10)->get()
@@ -100,6 +113,7 @@ class DashboardService
                 'sorted_at'    => $e->created_at,
             ]);
 
+        // Mengambil data pengajuan dana terbaru
         $funds = FundRequest::with('user')
             ->when(! $isAdmin, fn($q) => $q->where('user_id', $userId))
             ->latest()->take(10)->get()
@@ -121,6 +135,7 @@ class DashboardService
 
         $items = $items->merge($expenses)->merge($funds);
 
+        // Jika admin, tambahkan data pemasukan global ke aktivitas
         if ($isAdmin) {
             $incomes = Income::with('user')
                 ->latest()->take(10)->get()
@@ -146,15 +161,21 @@ class DashboardService
         return $items->sortByDesc('sorted_at')->take(8)->values();
     }
 
+    /**
+     * Helper untuk menentukan label dan warna badge pada pengajuan dana.
+     */
     private function fundBadge(string $status): array
     {
         return match ($status) {
             'approved' => ['bg' => '#d1e7dd', 'color' => '#198754', 'icon' => 'bi-check-circle-fill', 'label' => 'Disetujui'],
             'rejected' => ['bg' => '#f8d7da', 'color' => '#dc3545', 'icon' => 'bi-x-circle-fill',     'label' => 'Ditolak'],
-            default    => ['bg' => '#fff3cd', 'color' => '#856404', 'icon' => 'bi-clock-fill',         'label' => 'Pending'],
+            default    => ['bg' => '#fff3cd', 'color' => '#856404', 'icon' => 'bi-clock-fill',        'label' => 'Pending'],
         };
     }
 
+    /**
+     * Menyiapkan data untuk grafik keuangan dalam 12 bulan terakhir.
+     */
     public function getMonthlyChart(): array
     {
         $isAdmin = Auth::user()->role === 'admin';
@@ -170,9 +191,11 @@ class DashboardService
 
             $months[] = $date->translatedFormat('M Y');
 
+            // Hitung pemasukan per bulan
             $incomes[] = (float) Income::when(! $isAdmin, fn($q) => $q->where('user_id', $userId))
                 ->whereMonth('date', $m)->whereYear('date', $y)->sum('amount');
 
+            // Hitung pengeluaran per bulan (hanya yang sudah disetujui)
             $expenses[] = (float) Expense::where('status', 'approved')
                 ->when(! $isAdmin, fn($q) => $q->where('user_id', $userId))
                 ->whereMonth('date', $m)->whereYear('date', $y)->sum('amount');

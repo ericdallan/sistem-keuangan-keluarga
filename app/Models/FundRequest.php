@@ -8,25 +8,45 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * Model FundRequest (Pengajuan Dana)
+ * Mengelola data pengajuan dana dari user, proses persetujuan oleh admin, 
+ * serta relasi ke sistem notifikasi.
+ */
 #[Fillable(['uuid_fund_requests', 'user_id', 'amount', 'reason', 'date', 'month', 'status'])]
 class FundRequest extends Model
 {
     use HasUuids;
 
+    /**
+     * Menentukan kolom yang digunakan untuk UUID.
+     */
     public function uniqueIds(): array
     {
         return ['uuid_fund_requests'];
     }
+
+    // ── Relasi ─────────────────────────────────────────────────────
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Relasi ke notifikasi (Polymorphic).
+     * Memungkinkan pengajuan ini memiliki notifikasi terkait di tabel Notifications.
+     */
     public function notifications(): MorphMany
     {
         return $this->morphMany(Notification::class, 'notifiable');
     }
+
+    // ── Konfigurasi UI (Static) ────────────────────────────────────
+
+    /**
+     * Mengembalikan konfigurasi gaya visual untuk modul pengajuan dana.
+     */
     public static function typeConfig(): array
     {
         return [
@@ -38,6 +58,10 @@ class FundRequest extends Model
         ];
     }
 
+    /**
+     * Menentukan konfigurasi badge status berdasarkan status pengajuan.
+     * Menggunakan match expression untuk kode yang lebih ringkas dan aman.
+     */
     public static function statusBadge(string $status): array
     {
         return match ($status) {
@@ -61,6 +85,13 @@ class FundRequest extends Model
             ],
         };
     }
+
+    // ── Accessors ──────────────────────────────────────────────────
+
+    /**
+     * Mendapatkan konfigurasi badge status untuk instance model saat ini.
+     * Cukup panggil $fundRequest->status_badge di file Blade.
+     */
     public function getStatusBadgeAttribute(): array
     {
         return static::statusBadge($this->status);

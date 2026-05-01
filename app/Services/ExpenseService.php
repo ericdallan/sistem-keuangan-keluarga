@@ -10,8 +10,15 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Service untuk mengelola data pengeluaran (Expense).
+ * Menangani CRUD, upload bukti, dan notifikasi status.
+ */
 class ExpenseService
 {
+    /**
+     * Mengambil daftar pengeluaran dengan filter pencarian dan otorisasi.
+     */
     public function getList(
         ?string $search = null,
         ?string $status = null,
@@ -22,6 +29,7 @@ class ExpenseService
     ): LengthAwarePaginator {
         $query = Expense::with('user')->latest();
 
+        // Otorisasi: User hanya melihat miliknya, Admin melihat semuanya
         if (Auth::user()->role === 'user') {
             $query->where('user_id', Auth::id());
         } else {
@@ -36,16 +44,9 @@ class ExpenseService
         return $query->paginate($perPage);
     }
 
-    public function findOrFail(int $id): Expense
-    {
-        return Expense::with('user')->findOrFail($id);
-    }
-
-    public function findByUuidOrFail(string $uuid): Expense
-    {
-        return Expense::with('user')->where('uuid_expenses', $uuid)->firstOrFail();
-    }
-
+    /**
+     * Menyimpan data pengeluaran baru beserta bukti upload.
+     */
     public function store(array $data, ?UploadedFile $evidence = null): Expense
     {
         $path = $evidence?->store('evidence', 'public');
@@ -64,6 +65,9 @@ class ExpenseService
         return $expense;
     }
 
+    /**
+     * Memperbarui data pengeluaran dan mengganti file bukti jika ada file baru.
+     */
     public function update(Expense $expense, array $data, ?UploadedFile $evidence = null): Expense
     {
         $updateData = [
@@ -73,6 +77,7 @@ class ExpenseService
         ];
 
         if ($evidence) {
+            // Hapus file lama untuk menjaga storage
             if ($expense->evidence_path) {
                 Storage::disk('public')->delete($expense->evidence_path);
             }
@@ -83,18 +88,27 @@ class ExpenseService
         return $expense->fresh();
     }
 
+    /**
+     * Menyetujui pengeluaran dan mengirim notifikasi ke user.
+     */
     public function approve(Expense $expense): void
     {
         $expense->update(['status' => 'approved']);
         $this->notifyUser($expense, 'approved');
     }
 
+    /**
+     * Menolak pengeluaran dan mengirim notifikasi ke user.
+     */
     public function reject(Expense $expense): void
     {
         $expense->update(['status' => 'rejected']);
         $this->notifyUser($expense, 'rejected');
     }
 
+    /**
+     * Menghapus pengeluaran dan file bukti terkait.
+     */
     public function delete(Expense $expense): void
     {
         if ($expense->evidence_path) {
@@ -103,7 +117,7 @@ class ExpenseService
         $expense->delete();
     }
 
-    // ── Private helpers (Disinkronkan dengan NotificationService) ──
+    // ── Helper Notifikasi ───────────────────────────────────────────
 
     private function notifyAdmins(Expense $expense): void
     {
@@ -137,8 +151,8 @@ class ExpenseService
                 'icon'  => $isApproved ? 'bi-check-circle' : 'bi-x-circle',
                 'color' => $isApproved ? 'text-success' : 'text-danger',
                 'title' => 'Pengeluaran ' . ($isApproved ? 'Disetujui' : 'Ditolak'),
-                'body'  => 'Status pengeluaran Rp ' . number_format($expense->amount, 0, ',', '.') . ' Anda telah diperbarui.',
-                'url'   => route('expenses.index'), 
+                'body'  => 'Status pengeluaran Rp ' . number_format($expense->amount, 0, ',', '.') . ' Anda telah ' . ($isApproved ? 'disetujui.' : 'ditolak.'),
+                'url'   => route('expenses.index'),
             ],
         ]);
     }

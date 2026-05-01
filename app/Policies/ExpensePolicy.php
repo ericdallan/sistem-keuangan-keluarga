@@ -5,10 +5,14 @@ namespace App\Policies;
 use App\Models\Expense;
 use App\Models\User;
 
+/**
+ * Policy untuk mengelola otorisasi pada transaksi pengeluaran.
+ * Menerapkan kontrol akses ketat untuk menjaga integritas data keuangan.
+ */
 class ExpensePolicy
 {
     /**
-     * Hanya user (bukan admin) yang bisa membuat pengeluaran.
+     * Hanya User (anggota keluarga/karyawan) yang diperbolehkan membuat pengeluaran.
      */
     public function create(User $user): bool
     {
@@ -16,7 +20,7 @@ class ExpensePolicy
     }
 
     /**
-     * Admin bisa lihat semua, user hanya miliknya.
+     * Admin berhak melihat semua data. User hanya bisa melihat pengeluaran miliknya sendiri.
      */
     public function view(User $user, Expense $expense): bool
     {
@@ -24,8 +28,8 @@ class ExpensePolicy
     }
 
     /**
-     * User hanya bisa edit miliknya sendiri & status pending.
-     * Admin tidak bisa edit sama sekali.
+     * User hanya bisa mengupdate data miliknya jika statusnya masih 'pending'.
+     * Admin tidak diizinkan mengubah pengeluaran (menjaga akurasi data yang diajukan).
      */
     public function update(User $user, Expense $expense): bool
     {
@@ -37,8 +41,8 @@ class ExpensePolicy
     }
 
     /**
-     * User hanya bisa hapus miliknya sendiri & status pending.
-     * Admin tidak bisa hapus sama sekali.
+     * User hanya bisa menghapus data miliknya jika statusnya masih 'pending'.
+     * Admin tidak diizinkan menghapus data pengeluaran (untuk tujuan pelacakan).
      */
     public function delete(User $user, Expense $expense): bool
     {
@@ -50,7 +54,7 @@ class ExpensePolicy
     }
 
     /**
-     * Hanya admin yang bisa approve/reject.
+     * Hanya Admin yang memiliki otoritas untuk menyetujui (approve) atau menolak (reject) pengeluaran.
      */
     public function approve(User $user): bool
     {

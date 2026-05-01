@@ -12,11 +12,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
+/**
+ * Service untuk mengelola pengajuan dana (Fund Request).
+ * Menangani pengajuan oleh user dan proses approval oleh admin.
+ */
 class FundRequestService
 {
     /**
-     * List pengajuan dana.
-     * Admin: semua user. User: hanya miliknya.
+     * Mengambil daftar pengajuan dana dengan filter pencarian dan otorisasi.
+     * User hanya melihat pengajuannya sendiri, Admin melihat seluruh pengajuan.
      */
     public function getList(
         ?string $search = null,
@@ -41,7 +45,7 @@ class FundRequestService
     }
 
     /**
-     * Find single fund request by ID atau UUID.
+     * Mencari pengajuan dana berdasarkan ID (numeric) atau UUID.
      */
     public function findOrFail($id): FundRequest
     {
@@ -53,7 +57,7 @@ class FundRequestService
     }
 
     /**
-     * Buat pengajuan dana baru (oleh user).
+     * Menyimpan pengajuan dana baru yang dibuat oleh user.
      */
     public function store(array $data): FundRequest
     {
@@ -72,7 +76,7 @@ class FundRequestService
     }
 
     /**
-     * Update pengajuan dana (hanya jika masih pending).
+     * Memperbarui data pengajuan dana (hanya berlaku jika status masih pending).
      */
     public function update(FundRequest $fundRequest, array $data): FundRequest
     {
@@ -86,18 +90,21 @@ class FundRequestService
     }
 
     /**
-     * Approve pengajuan dana.
-     * Otomatis tambah ke Master Pemasukan bulan terkait.
+     * Menyetujui pengajuan dana dan otomatis menambahkannya ke Master Pemasukan (Income).
+     * Menggunakan Database Transaction untuk menjamin integritas data.
      */
     public function approve(FundRequest $fundRequest): void
     {
         DB::transaction(function () use ($fundRequest) {
+            // Ubah status pengajuan menjadi approved
             $fundRequest->update(['status' => 'approved']);
 
+            // Konversi bulan Y-m menjadi tanggal awal bulan untuk pencatatan Income
             $incomeDate = Carbon::createFromFormat('Y-m', $fundRequest->month)
                 ->startOfMonth()
                 ->toDateString();
 
+            // Masukkan nominal ke tabel pemasukan (Income) secara otomatis
             Income::create([
                 'uuid_incomes' => (string) Str::uuid(),
                 'user_id'      => $fundRequest->user_id,
@@ -112,17 +119,16 @@ class FundRequestService
     }
 
     /**
-     * Reject pengajuan dana.
+     * Menolak pengajuan dana dan mengirim notifikasi ke user.
      */
     public function reject(FundRequest $fundRequest, ?string $reason = null): void
     {
         $fundRequest->update(['status' => 'rejected']);
-
         $this->notifyUser($fundRequest, 'rejected');
     }
 
     /**
-     * Hapus pengajuan dana.
+     * Menghapus data pengajuan dana.
      */
     public function delete(FundRequest $fundRequest): void
     {
@@ -130,14 +136,15 @@ class FundRequestService
     }
 
     /**
-     * Jumlah pengajuan pending (untuk badge notifikasi admin).
+     * Menghitung jumlah pengajuan yang masih dalam status pending.
+     * Berguna untuk badge notifikasi di dashboard Admin.
      */
     public function countPending(): int
     {
         return FundRequest::where('status', 'pending')->count();
     }
 
-    // ── Private helpers ───────────────────────────────────────────
+    // ── Helper Notifikasi ───────────────────────────────────────────
 
     private function notifyAdmins(FundRequest $fundRequest): void
     {

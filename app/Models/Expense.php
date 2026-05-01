@@ -8,27 +8,40 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * Model Expense (Pengeluaran)
+ * Mengelola data transaksi pengeluaran, status persetujuan, dan lampiran bukti transaksi.
+ */
 #[Fillable(['uuid_expenses', 'user_id', 'amount', 'description', 'date', 'evidence_path', 'status'])]
 class Expense extends Model
 {
     use HasUuids;
 
+    /**
+     * Konversi tipe data otomatis untuk kolom tertentu.
+     */
     protected $casts = [
         'date'   => 'date',
         'amount' => 'integer',
     ];
 
+    /**
+     * Menggunakan UUID sebagai route key agar URL lebih aman dan tidak mudah ditebak.
+     */
     public function getRouteKey(): string
     {
         return $this->uuid_expenses;
     }
 
+    /**
+     * Menentukan kolom mana yang menggunakan UUID.
+     */
     public function uniqueIds(): array
     {
         return ['uuid_expenses'];
     }
 
-    // ── Relations ─────────────────────────────────────────────────
+    // ── Relasi ─────────────────────────────────────────────────────
 
     public function user(): BelongsTo
     {
@@ -40,19 +53,25 @@ class Expense extends Model
         return $this->morphMany(Notification::class, 'notifiable');
     }
 
-    // ── Accessors ─────────────────────────────────────────────────
+    // ── Konfigurasi UI (Static) ────────────────────────────────────
 
+    /**
+     * Mengembalikan konfigurasi gaya visual untuk modul pengeluaran.
+     */
     public static function typeConfig(): array
     {
         return [
-            'bg'    => '#f8d7da',
-            'color' => '#dc3545',
-            'icon'  => 'bi-arrow-up-circle',
-            'label' => 'Pengeluaran',
+            'bg'           => '#f8d7da',
+            'color'        => '#dc3545',
+            'icon'         => 'bi-arrow-up-circle',
+            'label'        => 'Pengeluaran',
             'amount_color' => '#dc3545',
         ];
     }
 
+    /**
+     * Menentukan konfigurasi badge status (pending, approved, rejected).
+     */
     public static function statusBadge(string $status): array
     {
         return match ($status) {
@@ -77,16 +96,18 @@ class Expense extends Model
         };
     }
      
+    // ── Accessors (Penyederhana Logic di Blade) ────────────────────
+
     /**
-     * Get status badge configuration (instance accessor)
+     * Mendapatkan konfigurasi badge status untuk instance model.
      */
     public function getStatusBadgeAttribute(): array
     {
         return static::statusBadge($this->status);
     }
-    
+
     /**
-     * Check if expense is editable (only pending)
+     * Mengecek apakah pengeluaran bisa diedit (hanya status 'pending').
      */
     public function getIsEditableAttribute(): bool
     {
@@ -94,7 +115,7 @@ class Expense extends Model
     }
 
     /**
-     * Check if expense is approved
+     * Mengecek apakah pengeluaran sudah disetujui.
      */
     public function getIsApprovedAttribute(): bool
     {
@@ -102,7 +123,7 @@ class Expense extends Model
     }
 
     /**
-     * Check if expense is rejected
+     * Mengecek apakah pengeluaran ditolak.
      */
     public function getIsRejectedAttribute(): bool
     {
@@ -110,7 +131,7 @@ class Expense extends Model
     }
 
     /**
-     * Get formatted amount with Rp prefix
+     * Memformat nominal angka ke format mata uang Rupiah.
      */
     public function getFormattedAmountAttribute(): string
     {
@@ -118,7 +139,7 @@ class Expense extends Model
     }
 
     /**
-     * Get evidence URL or null
+     * Mendapatkan URL lengkap untuk file bukti transaksi.
      */
     public function getEvidenceUrlAttribute(): ?string
     {
@@ -128,7 +149,7 @@ class Expense extends Model
     }
 
     /**
-     * Get evidence file type (image/pdf)
+     * Mendeteksi jenis file bukti (gambar atau PDF).
      */
     public function getEvidenceTypeAttribute(): ?string
     {

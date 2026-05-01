@@ -7,12 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 
+/**
+ * Service untuk mengelola profil user yang sedang login.
+ */
 class ProfileService
 {
     /**
-     * Validation rules untuk update profile info.
+     * Mengembalikan aturan validasi untuk pembaruan profil (Nama & Email).
      */
     public function profileRules(int $userId): array
     {
@@ -30,7 +32,7 @@ class ProfileService
     }
 
     /**
-     * Validation rules untuk update password.
+     * Mengembalikan aturan validasi untuk perubahan password.
      */
     public function passwordRules(): array
     {
@@ -42,8 +44,8 @@ class ProfileService
     }
 
     /**
-     * Update nama & email user.
-     * Return true jika email berubah (perlu re-verify).
+     * Memperbarui profil user.
+     * Mengembalikan status true jika email berubah (perlu verifikasi ulang).
      */
     public function updateProfile(User $user, array $validated): bool
     {
@@ -64,7 +66,7 @@ class ProfileService
     }
 
     /**
-     * Update password user.
+     * Mengubah password user menjadi password baru yang telah di-hash.
      */
     public function updatePassword(User $user, string $newPassword): void
     {
@@ -74,7 +76,7 @@ class ProfileService
     }
 
     /**
-     * Kirim ulang email verifikasi.
+     * Mengirim ulang tautan verifikasi email jika belum terverifikasi.
      */
     public function resendVerification(User $user): void
     {

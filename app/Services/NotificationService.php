@@ -5,16 +5,21 @@ namespace App\Services;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Service untuk mengelola sistem notifikasi user.
+ * Bertanggung jawab atas pengambilan, pengiriman, dan manajemen status notifikasi.
+ */
 class NotificationService
 {
     /**
-     * Ambil notifikasi untuk user yang sedang login dari tabel notifications.
+     * Mengambil daftar notifikasi untuk user yang sedang login.
+     * Mengembalikan array format untuk kemudahan tampilan di view.
      */
     public function getNotifications(int $limit = 10): array
     {
         $user = Auth::user();
 
-        // Ambil data dari tabel notifications milik user
+        // Ambil notifikasi terbaru milik user
         $notifications = Notification::where('user_id', $user->id)
             ->latest()
             ->take($limit)
@@ -31,7 +36,7 @@ class NotificationService
                 'color' => $data['color'] ?? 'text-primary',
                 'title' => $data['title'] ?? 'Notifikasi Baru',
                 'body'  => $data['body'] ?? '',
-                'time'  => $notification->created_at->diffForHumans(),
+                'time'  => $notification->created_at->diffForHumans(), // Format waktu ramah user
                 'read'  => $notification->read_at !== null,
                 'url'   => $data['url'] ?? '#',
             ];
@@ -41,7 +46,8 @@ class NotificationService
     }
 
     /**
-     * Trigger untuk membuat notifikasi baru (Gunakan ini di Service lain saat Create/Approve)
+     * Membuat notifikasi baru.
+     * Gunakan metode ini di Service lain (Expense/FundRequest) agar kode lebih bersih.
      */
     public function send($userId, $notifiable, array $displayData): Notification
     {
@@ -60,7 +66,8 @@ class NotificationService
     }
 
     /**
-     * Hitung notifikasi yang belum dibaca (unread count).
+     * Menghitung jumlah notifikasi yang belum dibaca (unread).
+     * Sangat berguna untuk menampilkan angka di badge notifikasi.
      */
     public function countUnread(): int
     {
@@ -70,7 +77,7 @@ class NotificationService
     }
 
     /**
-     * Tandai semua sebagai dibaca.
+     * Menandai semua notifikasi milik user menjadi "sudah dibaca".
      */
     public function markAllAsRead(): void
     {

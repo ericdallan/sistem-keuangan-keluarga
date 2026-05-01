@@ -7,10 +7,14 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Service untuk manajemen data pengguna (User Management).
+ * Digunakan terutama oleh Admin untuk CRUD data user.
+ */
 class UserService
 {
     /**
-     * List semua user (admin only)
+     * Mengambil daftar user dengan fitur pencarian dan filter role.
      */
     public function getAll(
         ?string $search = null,
@@ -18,7 +22,6 @@ class UserService
         int $perPage = 10
     ): LengthAwarePaginator {
         return User::query()
-            // ->where('id', '!=', Auth::id()) // Kecuali diri sendiri
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('name', 'like', "%{$search}%")
@@ -26,25 +29,25 @@ class UserService
                 });
             })
             ->when($role, fn($q) => $q->where('role', $role))
+            // Mengurutkan berdasarkan posisi keluarga jika diperlukan
             ->orderByRaw("FIELD(position, 'husband', 'wife', 'child')")
             ->latest()
             ->paginate($perPage);
     }
 
     /**
-     * Find single user by ID atau UUID.
+     * Mencari user berdasarkan ID atau UUID.
      */
     public function findOrFail($id): User
     {
         if (is_numeric($id)) {
             return User::findOrFail($id);
         }
-
         return User::where('uuid_users', $id)->firstOrFail();
     }
 
     /**
-     * Buat user baru.
+     * Membuat akun user baru oleh Admin.
      */
     public function store(array $data): User
     {
@@ -58,7 +61,7 @@ class UserService
     }
 
     /**
-     * Update data user.
+     * Memperbarui data user.
      */
     public function update(User $user, array $data): User
     {
@@ -69,6 +72,7 @@ class UserService
             'position' => $data['position'],
         ];
 
+        // Update password hanya jika diisi
         if (! empty($data['password'])) {
             $payload['password'] = Hash::make($data['password']);
         }
@@ -79,20 +83,18 @@ class UserService
     }
 
     /**
-     * Hapus user.
+     * Menghapus akun user dengan validasi keamanan.
      */
     public function delete(User $user): void
     {
-        // Pastikan tidak menghapus diri sendiri melalui service
         if ($user->id === Auth::id()) {
             throw new \Exception("Anda tidak dapat menghapus akun Anda sendiri.");
         }
-
         $user->delete();
     }
 
     /**
-     * List user dengan role 'user' saja.
+     * Mengambil koleksi user yang memiliki role 'user'.
      */
     public function getUsersOnly(): \Illuminate\Database\Eloquent\Collection
     {
