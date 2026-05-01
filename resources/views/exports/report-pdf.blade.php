@@ -4,102 +4,101 @@
 <head>
     <meta charset="utf-8">
     <title>Laporan Keuangan</title>
+
     <style>
         @page {
             size: A4 portrait;
-            margin: 20mm 15mm;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 18mm 15mm;
         }
 
         body {
-            font-family: 'DejaVu Sans', 'Helvetica', sans-serif;
-            font-size: 10px;
-            line-height: 1.4;
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 11px;
             color: #333;
         }
 
-        /* Header */
+        /* HEADER */
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #198754;
         }
 
         .header h1 {
-            font-size: 18px;
+            font-size: 20px;
+            margin-bottom: 6px;
             color: #198754;
-            margin-bottom: 4px;
-            font-weight: 700;
         }
 
         .header .period {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 3px;
+            font-size: 12px;
+            color: #555;
         }
 
         .header .user {
-            font-size: 10px;
-            font-weight: 600;
-            color: #495057;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 4px;
         }
 
-        /* Summary Grid */
-        .summary-section {
-            margin-bottom: 20px;
-        }
-
+        /* SUMMARY */
         .summary-grid {
             display: table;
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 8px;
+            margin-bottom: 20px;
+            table-layout: fixed;
         }
 
         .summary-item {
-            display: table-cell;
             width: 25%;
-            text-align: center;
-            padding: 12px 8px;
+            display: table-cell;
+            margin-right: 1%;
+            padding: 10px;
             background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 3px solid;
+            border-radius: 6px;
+            border-top: 3px solid;
+            text-align: center;
         }
 
-        .summary-item.income {
-            border-left-color: #198754;
+        .summary-box {
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-top: 3px solid;
+            text-align: center;
+            padding: 10px;
         }
 
-        .summary-item.expense {
-            border-left-color: #dc3545;
+        .summary-item:last-child {
+            margin-right: 0;
         }
 
-        .summary-item.pending {
-            border-left-color: #ffc107;
+        .income {
+            border-color: #198754;
         }
 
-        .summary-item.fund {
-            border-left-color: #0dcaf0;
+        .expense {
+            border-color: #dc3545;
         }
 
-        .summary-item .label {
-            font-size: 8px;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .pending {
+            border-color: #ffc107;
+        }
+
+        .fund {
+            border-color: #0dcaf0;
+        }
+
+        .label {
+            font-size: 9px;
+            color: #777;
             margin-bottom: 4px;
-            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        .summary-item .value {
-            font-size: 13px;
-            font-weight: 700;
+        .value {
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .text-success {
@@ -118,103 +117,66 @@
             color: #055160;
         }
 
-        /* Section */
+        /* SECTION */
         .section {
-            margin-bottom: 18px;
-            page-break-inside: avoid;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 1.5px solid #e9ecef;
-        }
-
-        .section-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
+            margin-bottom: 22px;
         }
 
         .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #333;
-            margin: 0;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 4px;
         }
 
         .section-count {
-            margin-left: auto;
-            font-size: 9px;
-            color: #6c757d;
+            font-size: 10px;
+            float: right;
+            color: #666;
         }
 
-        /* Table */
+        /* TABLE */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9px;
         }
 
         thead tr {
-            background: #f8f9fa;
+            background: #e9ecef;
         }
 
         th {
-            padding: 8px 6px;
+            padding: 8px;
+            font-size: 9px;
             text-align: left;
-            font-size: 8px;
-            font-weight: 700;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-bottom: 1.5px solid #dee2e6;
-        }
-
-        th.text-right {
-            text-align: right;
+            border-bottom: 2px solid #ced4da;
         }
 
         td {
-            padding: 8px 6px;
-            border-bottom: 0.5px solid #e9ecef;
-            vertical-align: middle;
+            padding: 10px 6px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 10px;
         }
 
         tr:nth-child(even) {
-            background: #fafafa;
+            background: #f8f9fa;
         }
 
         .text-right {
             text-align: right;
         }
 
-        .nowrap {
-            white-space: nowrap;
-        }
-
-        /* Amount */
         .amount {
-            font-weight: 600;
-            font-size: 9.5px;
+            font-weight: bold;
         }
 
-        /* Badge */
+        /* BADGE */
         .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 8px;
-            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 8.5px;
+            font-weight: bold;
         }
 
         .badge-success {
@@ -237,37 +199,32 @@
             color: #055160;
         }
 
-        /* Empty */
+        /* EMPTY */
         .empty {
             text-align: center;
-            padding: 20px;
-            color: #adb5bd;
+            padding: 15px;
             font-style: italic;
-            font-size: 10px;
+            color: #999;
         }
 
-        /* Footer */
+        /* FOOTER */
         .footer {
             margin-top: 25px;
-            padding-top: 10px;
-            border-top: 0.5px solid #dee2e6;
             text-align: center;
-            font-size: 8px;
-            color: #adb5bd;
-        }
-
-        /* Page break */
-        .page-break {
-            page-break-before: always;
+            font-size: 9px;
+            color: #aaa;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
         }
     </style>
 </head>
 
 <body>
 
-    {{-- Header --}}
+    {{-- HEADER --}}
     <div class="header">
         <h1>Laporan Keuangan</h1>
+
         <div class="period">
             @if ($start->format('Y-m') === $end->format('Y-m'))
                 {{ $start->translatedFormat('F Y') }}
@@ -275,173 +232,130 @@
                 {{ $start->translatedFormat('d M Y') }} - {{ $end->translatedFormat('d M Y') }}
             @endif
         </div>
+
         @if ($filterUserName)
             <div class="user">Pengguna: {{ $filterUserName }}</div>
         @endif
     </div>
 
-    {{-- Summary --}}
-    <div class="summary-section">
-        <div class="summary-grid">
-            <div class="summary-item income">
+    {{-- SUMMARY --}}
+    <div class="summary-grid">
+
+        <div class="summary-item">
+            <div class="summary-box income">
                 <div class="label">Pemasukan</div>
-                <div class="value text-success">Rp {{ number_format($summary['total_income'], 0, ',', '.') }}</div>
-            </div>
-            <div class="summary-item expense">
-                <div class="label">Pengeluaran</div>
-                <div class="value text-danger">Rp {{ number_format($summary['total_expense'], 0, ',', '.') }}</div>
-            </div>
-            <div class="summary-item pending">
-                <div class="label">Pending</div>
-                <div class="value text-warning">Rp {{ number_format($summary['total_pending'], 0, ',', '.') }}</div>
-            </div>
-            <div class="summary-item fund">
-                <div class="label">Pengajuan Dana</div>
-                <div class="value text-info">Rp {{ number_format($summary['total_fund'], 0, ',', '.') }}</div>
+                <div class="value text-success">
+                    Rp {{ number_format($summary['total_income'], 0, ',', '.') }}
+                </div>
             </div>
         </div>
+
+        <div class="summary-item">
+            <div class="summary-box expense">
+                <div class="label">Pengeluaran</div>
+                <div class="value text-danger">
+                    Rp {{ number_format($summary['total_expense'], 0, ',', '.') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-item">
+            <div class="summary-box pending">
+                <div class="label">Pending</div>
+                <div class="value text-warning">
+                    Rp {{ number_format($summary['total_pending'], 0, ',', '.') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-item">
+            <div class="summary-box fund">
+                <div class="label">Pengajuan Dana</div>
+                <div class="value text-info">
+                    Rp {{ number_format($summary['total_fund'], 0, ',', '.') }}
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    {{-- Pemasukan --}}
-    @if (in_array('income', $categories ?? ['income', 'expense', 'fund']))
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon" style="background:#198754">↓</span>
-                <h3 class="section-title">Detail Pemasukan</h3>
-                <span class="section-count">{{ $incomes->count() }} transaksi</span>
-            </div>
-
-            @if ($incomes->count() > 0)
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width:18%">Tanggal</th>
-                            <th style="width:22%">Pengguna</th>
-                            <th>Keterangan</th>
-                            <th class="text-right" style="width:20%">Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($incomes as $income)
-                            <tr>
-                                <td class="nowrap" style="color:#6c757d">{{ $income->date->format('d M Y') }}</td>
-                                <td style="font-weight:500">{{ $income->user->name ?? '-' }}</td>
-                                <td>{{ $income->description }}</td>
-                                <td class="text-right amount text-success">+Rp
-                                    {{ number_format($income->amount, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <div class="empty">Tidak ada data pemasukan</div>
-            @endif
+    {{-- PEMASUKAN --}}
+    <div class="section">
+        <div class="section-title">
+            Detail Pemasukan
+            <span class="section-count">{{ $incomes->count() }} transaksi</span>
         </div>
-    @endif
 
-    {{-- Pengeluaran --}}
-    @if (in_array('expense', $categories ?? ['income', 'expense', 'fund']))
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon" style="background:#dc3545">↑</span>
-                <h3 class="section-title">Detail Pengeluaran</h3>
-                <span class="section-count">{{ $expenses->count() }} transaksi</span>
-            </div>
-
-            @if ($expenses->count() > 0)
-                <table>
-                    <thead>
+        @if ($incomes->count())
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Pengguna</th>
+                        <th>Keterangan</th>
+                        <th class="text-right">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($incomes as $item)
                         <tr>
-                            <th style="width:15%">Tanggal</th>
-                            <th style="width:18%">Pengguna</th>
-                            <th>Keterangan</th>
-                            <th style="width:12%">Status</th>
-                            <th class="text-right" style="width:18%">Jumlah</th>
+                            <td>{{ $item->date->format('d M Y') }}</td>
+                            <td>{{ $item->user->name ?? '-' }}</td>
+                            <td>{{ $item->description }}</td>
+                            <td class="text-right amount text-success">
+                                +Rp {{ number_format($item->amount, 0, ',', '.') }}
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($expenses as $expense)
-                            @php
-                                $badgeClass = match ($expense->status) {
-                                    'approved' => 'badge-success',
-                                    'rejected' => 'badge-danger',
-                                    default => 'badge-warning',
-                                };
-                                $badgeLabel = match ($expense->status) {
-                                    'approved' => 'Disetujui',
-                                    'rejected' => 'Ditolak',
-                                    default => 'Pending',
-                                };
-                            @endphp
-                            <tr>
-                                <td class="nowrap" style="color:#6c757d">{{ $expense->date->format('d M Y') }}</td>
-                                <td style="font-weight:500">{{ $expense->user->name ?? '-' }}</td>
-                                <td>{{ $expense->description }}</td>
-                                <td><span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span></td>
-                                <td class="text-right amount text-danger">-Rp
-                                    {{ number_format($expense->amount, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <div class="empty">Tidak ada data pengeluaran</div>
-            @endif
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div class="empty">Tidak ada data</div>
+        @endif
+    </div>
+
+    {{-- PENGELUARAN --}}
+    <div class="section">
+        <div class="section-title">
+            Detail Pengeluaran
+            <span class="section-count">{{ $expenses->count() }} transaksi</span>
         </div>
-    @endif
 
-    {{-- Pengajuan Dana --}}
-    @if (in_array('fund', $categories ?? ['income', 'expense', 'fund']))
-        <div class="section">
-            <div class="section-header">
-                <span class="section-icon" style="background:#0dcaf0">$</span>
-                <h3 class="section-title">Detail Pengajuan Dana</h3>
-                <span class="section-count">{{ $fundRequests->count() }} transaksi</span>
-            </div>
-
-            @if ($fundRequests->count() > 0)
-                <table>
-                    <thead>
+        @if ($expenses->count())
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Pengguna</th>
+                        <th>Keterangan</th>
+                        <th>Status</th>
+                        <th class="text-right">Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($expenses as $item)
                         <tr>
-                            <th style="width:15%">Tanggal</th>
-                            <th style="width:18%">Pengguna</th>
-                            <th>Alasan</th>
-                            <th style="width:12%">Status</th>
-                            <th class="text-right" style="width:18%">Jumlah</th>
+                            <td>{{ $item->date->format('d M Y') }}</td>
+                            <td>{{ $item->user->name ?? '-' }}</td>
+                            <td>{{ $item->description }}</td>
+                            <td>
+                                <span class="badge">
+                                    {{ ucfirst($item->status) }}
+                                </span>
+                            </td>
+                            <td class="text-right amount text-danger">
+                                -Rp {{ number_format($item->amount, 0, ',', '.') }}
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($fundRequests as $fund)
-                            @php
-                                $badgeClass = match ($fund->status) {
-                                    'approved' => 'badge-success',
-                                    'rejected' => 'badge-danger',
-                                    default => 'badge-info',
-                                };
-                                $badgeLabel = match ($fund->status) {
-                                    'approved' => 'Disetujui',
-                                    'rejected' => 'Ditolak',
-                                    default => 'Pending',
-                                };
-                            @endphp
-                            <tr>
-                                <td class="nowrap" style="color:#6c757d">{{ $fund->created_at->format('d M Y') }}</td>
-                                <td style="font-weight:500">{{ $fund->user->name ?? '-' }}</td>
-                                <td>{{ $fund->reason }}</td>
-                                <td><span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span></td>
-                                <td class="text-right amount text-info">+Rp
-                                    {{ number_format($fund->amount, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <div class="empty">Tidak ada data pengajuan dana</div>
-            @endif
-        </div>
-    @endif
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div class="empty">Tidak ada data</div>
+        @endif
+    </div>
 
-    {{-- Footer --}}
+    {{-- FOOTER --}}
     <div class="footer">
         Dicetak pada {{ now()->translatedFormat('d F Y H:i') }} | {{ config('app.name') }}
     </div>
