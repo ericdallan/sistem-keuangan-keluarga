@@ -15,6 +15,23 @@ use Livewire\Component;
 #[Title('Dashboard Pengguna')]
 class Dashboard extends Component
 {
+
+    /**
+     * Menginisialisasi dashboard dan menampilkan toast notifikasi
+     * jika ada pesan flash dari proses login sebelumnya.
+     */
+    public function mount(): void
+    {
+        // Kirim toast jika ada session flash dari login
+        if (session()->has('toast_message')) {
+            $this->dispatch(
+                'toast',
+                message: session('toast_message'),
+                type: session('toast_type', 'success')
+            );
+        }
+    }
+
     /**
      * Merender halaman dashboard utama.
      * Mengambil data summary dan statistik grafik melalui DashboardService.

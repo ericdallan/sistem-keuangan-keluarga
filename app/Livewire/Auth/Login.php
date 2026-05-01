@@ -23,10 +23,8 @@ class Login extends Component
             $this->form->authenticate();
             Session::regenerate();
 
-            $this->dispatch('toast', [
-                'message' => 'Selamat datang kembali! Senang melihat Anda di sistem.',
-                'type' => 'success'
-            ]);
+            session()->flash('toast_message', 'Selamat datang kembali!');
+            session()->flash('toast_type', 'success');
 
             $this->redirect($this->form->getRedirectRoute(), navigate: true);
         } catch (ValidationException $e) {

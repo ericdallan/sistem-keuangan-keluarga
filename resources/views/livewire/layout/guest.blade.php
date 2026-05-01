@@ -201,7 +201,107 @@
         </div>
     </div>
 
+    {{--  Chart.js untuk saat navigate ke dashboard --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    @stack('scripts')
+
+    <script>
+        window.SKK = window.SKK || {};
+        window.SKK.charts = window.SKK.charts || {};
+
+        window.SKK.destroyAllCharts = function() {
+            Object.values(window.SKK.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') chart.destroy();
+            });
+            window.SKK.charts = {};
+        };
+
+        window.SKK.registerChart = function(name, chartInstance) {
+            if (window.SKK.charts[name]) window.SKK.charts[name].destroy();
+            window.SKK.charts[name] = chartInstance;
+        };
+
+        document.addEventListener('livewire:navigating', function() {
+            window.SKK.destroyAllCharts();
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+        });
+
+        function skToast(message, type = 'success') {
+            const container = document.getElementById('sk-toast-container');
+            if (!container) return;
+            const config = {
+                success: {
+                    bg: '#d1e7dd',
+                    border: '#198754',
+                    color: '#198754',
+                    icon: 'bi-check-circle-fill'
+                },
+                error: {
+                    bg: '#f8d7da',
+                    border: '#dc3545',
+                    color: '#dc3545',
+                    icon: 'bi-x-circle-fill'
+                },
+                warning: {
+                    bg: '#fff3cd',
+                    border: '#ffc107',
+                    color: '#856404',
+                    icon: 'bi-exclamation-triangle-fill'
+                },
+                info: {
+                    bg: '#cff4fc',
+                    border: '#0dcaf0',
+                    color: '#055160',
+                    icon: 'bi-info-circle-fill'
+                },
+            };
+            const c = config[type] ?? config.success;
+            const inner = document.createElement('div');
+            inner.innerHTML = `<div class="d-flex align-items-center gap-3 p-3 shadow-sm"
+                style="background:#fff;border-radius:.875rem;border-left:4px solid ${c.border};
+                       cursor:pointer;opacity:0;transition:opacity .3s,transform .3s;
+                       transform:translateY(-8px);min-width:280px;max-width:320px">
+                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                    style="width:34px;height:34px;background:${c.bg};color:${c.color};font-size:1rem">
+                    <i class="bi ${c.icon}"></i>
+                </div>
+                <span class="fw-semibold flex-grow-1" style="font-size:.85rem;color:#2d3436">${message}</span>
+                <i class="bi bi-x flex-shrink-0" style="font-size:1rem;color:#adb5bd"></i>
+            </div>`;
+            const el = inner.firstElementChild;
+            container.appendChild(el);
+            el.addEventListener('click', () => dismiss(el));
+            requestAnimationFrame(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            });
+            const t = setTimeout(() => dismiss(el), 3500);
+
+            function dismiss(e) {
+                clearTimeout(t);
+                e.style.opacity = '0';
+                e.style.transform = 'translateY(-8px)';
+                setTimeout(() => e.remove(), 300);
+            }
+        }
+
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('toast', ({
+                message,
+                type
+            }) => skToast(message, type ?? 'success'));
+        });
+    </script>
+
+    <div id="sk-toast-container"
+        style="position:fixed;top:1.5rem;right:1.5rem;z-index:9999;
+               display:flex;flex-direction:column;gap:.5rem">
+    </div>
 </body>
 
 </html>
