@@ -178,3 +178,98 @@ body {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     padding: 1.5rem;
 }
+/* ============================================
+   SKK.Digital — Pagination Overrides
+   ============================================ */
+
+/* Boost specificity dengan :is() atau double class */
+.pagination.sk-pagination,
+.pagination {
+    gap: 0.35rem;
+    margin-bottom: 0;
+}
+
+/* Override Bootstrap .page-link dengan higher specificity */
+.pagination .page-item .page-link,
+.pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.75rem;
+    border-radius: 0.55rem !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    background: #fff;
+    color: #6c757d;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: "Figtree", sans-serif;
+    transition: all 0.15s ease;
+    box-shadow: none;
+}
+
+.pagination .page-item .page-link:hover,
+.pagination .page-link:hover {
+    background: var(--sk-primary-light) !important;
+    color: var(--sk-primary) !important;
+    border-color: var(--sk-primary-light) !important;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.15);
+    z-index: 2;
+}
+
+.pagination .page-item.active .page-link,
+.pagination .active .page-link {
+    background: var(--sk-primary) !important;
+    border-color: var(--sk-primary) !important;
+    color: #fff !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.25);
+}
+
+.pagination .page-item.active .page-link:hover,
+.pagination .active .page-link:hover {
+    background: var(--sk-primary-hover) !important;
+    border-color: var(--sk-primary-hover) !important;
+}
+
+.pagination .page-item.disabled .page-link,
+.pagination .disabled .page-link {
+    background: #f8f9fa !important;
+    color: #adb5bd !important;
+    border-color: rgba(0, 0, 0, 0.06) !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Previous / Next */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    padding: 0 1rem;
+    font-weight: 600;
+    gap: 0.35rem;
+}
+
+/* Custom focus ring */
+.pagination .page-link:focus {
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2) !important;
+    outline: none !important;
+}
+
+/* Responsive mobile */
+@media (max-width: 575.98px) {
+    .pagination .page-item .page-link,
+    .pagination .page-link {
+        min-width: 32px;
+        height: 32px;
+        padding: 0 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 0.45rem !important;
+    }
+
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        padding: 0 0.75rem;
+    }
+}

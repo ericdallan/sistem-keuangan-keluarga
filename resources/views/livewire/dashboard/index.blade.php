@@ -302,109 +302,131 @@
 
 @push('scripts')
     <script>
-        const ctx = document.getElementById('financeChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: @json($chartData['months']),
-                datasets: [{
-                        label: 'Pemasukan',
-                        data: @json($chartData['incomes']),
-                        borderColor: '#198754',
-                        backgroundColor: 'rgba(25, 135, 84, 0.08)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#198754',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    },
-                    {
-                        label: 'Pengeluaran',
-                        data: @json($chartData['expenses']),
-                        borderColor: '#dc3545',
-                        backgroundColor: 'rgba(220, 53, 69, 0.08)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#dc3545',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'end',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            padding: 20,
-                            font: {
-                                size: 12,
-                                family: 'Figtree'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: '#2d3436',
-                        padding: 12,
-                        cornerRadius: 8,
-                        titleFont: {
-                            size: 13,
-                            family: 'Figtree'
-                        },
-                        bodyFont: {
-                            size: 12,
-                            family: 'Figtree'
-                        },
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': Rp ' + context.parsed.y.toLocaleString(
-                                    'id-ID');
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.04)'
-                        },
-                        ticks: {
-                            font: {
-                                size: 11,
-                                family: 'Figtree'
-                            },
-                            callback: function(value) {
-                                if (value >= 1000000) return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
-                                if (value >= 1000) return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
-                                return 'Rp ' + value;
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                size: 11,
-                                family: 'Figtree'
-                            }
-                        }
-                    }
+        (function() {
+            let chartInstance = null;
+
+            function initChart() {
+                const canvas = document.getElementById('financeChart');
+                if (!canvas) return;
+
+                // Hancurkan chart lama jika ada
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
                 }
+
+                const ctx = canvas.getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: @json($chartData['months']),
+                        datasets: [{
+                                label: 'Pemasukan',
+                                data: @json($chartData['incomes']),
+                                borderColor: '#198754',
+                                backgroundColor: 'rgba(25, 135, 84, 0.08)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#198754',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2
+                            },
+                            {
+                                label: 'Pengeluaran',
+                                data: @json($chartData['expenses']),
+                                borderColor: '#dc3545',
+                                backgroundColor: 'rgba(220, 53, 69, 0.08)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#dc3545',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'end',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 20,
+                                    font: {
+                                        size: 12,
+                                        family: 'Figtree'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#2d3436',
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 13,
+                                    family: 'Figtree'
+                                },
+                                bodyFont: {
+                                    size: 12,
+                                    family: 'Figtree'
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': Rp ' +
+                                            context.parsed.y.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.04)'
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11,
+                                        family: 'Figtree'
+                                    },
+                                    callback: function(value) {
+                                        if (value >= 1000000) return 'Rp ' + (value / 1000000).toFixed(1) +
+                                            'jt';
+                                        if (value >= 1000) return 'Rp ' + (value / 1000).toFixed(0) + 'rb';
+                                        return 'Rp ' + value;
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11,
+                                        family: 'Figtree'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             }
-        });
+
+            // Inisialisasi pertama kali (hard load)
+            document.addEventListener('DOMContentLoaded', initChart);
+
+            // Inisialisasi ulang setiap kali wire:navigate selesai
+            document.addEventListener('livewire:navigated', initChart);
+        })();
     </script>
 @endpush
