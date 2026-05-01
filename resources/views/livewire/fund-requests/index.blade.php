@@ -3,6 +3,18 @@
     <div class="sk-card mb-4">
         <div class="row g-2 align-items-end">
 
+            {{-- Cari --}}
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-600 mb-1">Cari</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" wire:model.live.debounce.400ms="search" class="form-control border-start-0 ps-0"
+                        placeholder="Cari alasan...">
+                </div>
+            </div>
+
             {{-- Status --}}
             <div class="col-6 col-md-2">
                 <label class="form-label small fw-600 mb-1">Status</label>
@@ -31,7 +43,8 @@
             </div>
 
             {{-- Tombol Tambah (User Only) --}}
-            <div class="col-12 col-md-auto ms-md-auto">
+            {{-- Tombol Tambah (User Only) --}}
+            <div class="col-12 col-md-auto">
                 @if (!$isAdmin)
                     <a href="{{ route('fund-requests.create') }}" wire:navigate
                         class="btn btn-sm fw-700 text-white w-100 d-flex align-items-center justify-content-center gap-1"
@@ -42,6 +55,7 @@
                     <div class="d-none d-md-block" style="height:31px"></div>
                 @endif
             </div>
+
         </div>
     </div>
 

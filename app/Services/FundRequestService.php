@@ -19,10 +19,11 @@ class FundRequestService
      * Admin: semua user. User: hanya miliknya.
      */
     public function getList(
+        ?string $search = null,
         ?string $status = null,
-        ?int $userId = null,
-        ?string $month = null,
-        int $perPage = 10
+        ?int    $userId = null,
+        ?string $month  = null,
+        int     $perPage = 10
     ): LengthAwarePaginator {
         $query = FundRequest::with('user')->latest();
 
@@ -32,7 +33,8 @@ class FundRequestService
             $query->when($userId, fn($q) => $q->where('user_id', $userId));
         }
 
-        $query->when($status, fn($q) => $q->where('status', $status))
+        $query->when($search, fn($q) => $q->where('reason', 'like', "%{$search}%"))
+            ->when($status, fn($q) => $q->where('status', $status))
             ->when($month,  fn($q) => $q->where('month', $month));
 
         return $query->paginate($perPage);

@@ -2,96 +2,72 @@
     <div class="container-fluid">
         <div class="row mb-4">
             <div class="col-12">
-                <div class="p-4 text-white"
+                <div class="px-4 py-3 text-white"
                     style="background:var(--sk-primary-gradient);border-radius:1rem;box-shadow:0 4px 20px rgba(25,135,84,.25)">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                        <div>
-                            <h4 class="fw-bold mb-1">Halo, {{ auth()->user()->name }}!</h4>
-                            <p class="mb-0 opacity-75" style="font-size:.9rem">
-                                Ringkasan keuangan keluarga — {{ $summary['current_month_label'] }}
-                            </p>
-                        </div>
-                        <div class="d-flex gap-2">
-                            @if (auth()->user()->role === 'admin')
-                                <a href="{{ route('income.create') }}"
-                                    class="btn btn-light rounded-pill d-flex align-items-center gap-2 fw-semibold"
-                                    style="font-size:.8rem;color:var(--sk-primary)">
-                                    <i class="bi bi-plus-circle"></i> Pemasukan
-                                </a>
-                            @endif
-                            <a href="{{ route('expenses.create') }}"
-                                class="btn btn-outline-light rounded-pill d-flex align-items-center gap-2 fw-semibold"
-                                style="font-size:.8rem">
-                                <i class="bi bi-plus-circle"></i> Pengeluaran
-                            </a>
-                        </div>
-                    </div>
+                    <h5 class="fw-bold mb-0">Halo, {{ auth()->user()->name }}!</h5>
+                    <p class="mb-0 opacity-75" style="font-size:.8rem">
+                        Ringkasan keuangan keluarga — {{ $summary['current_month_label'] }}
+                    </p>
                 </div>
             </div>
         </div>
         <div class="row g-3 mb-4">
             {{-- Total Saldo --}}
             <div class="col-md-4">
-                <div class="h-100 p-4" style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-circle"
-                            style="width:44px;height:44px;background:var(--sk-primary-light);color:var(--sk-primary);font-size:1.2rem">
-                            <i class="bi bi-wallet2"></i>
-                        </div>
-                        <span class="fw-semibold"
-                            style="font-size:.75rem;color:#adb5bd;text-transform:uppercase;letter-spacing:.05em">
-                            Total Saldo
-                        </span>
+                <div class="d-flex align-items-center gap-3 px-4 py-3"
+                    style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                        style="width:40px;height:40px;background:var(--sk-primary-light);color:var(--sk-primary);font-size:1.1rem">
+                        <i class="bi bi-wallet2"></i>
                     </div>
-                    <h3 class="fw-bold mb-0" style="font-size:1.5rem;color:var(--sk-text)">
-                        Rp {{ number_format($summary['balance'], 0, ',', '.') }}
-                    </h3>
-                    <div class="mt-2 d-flex align-items-center gap-1" style="font-size:.75rem;color:#adb5bd">
-                        <i class="bi bi-info-circle"></i> Akumulasi semua pemasukan - pengeluaran
+                    <div>
+                        <div
+                            style="font-size:.7rem;color:#adb5bd;text-transform:uppercase;letter-spacing:.05em;font-weight:600">
+                            Total Saldo
+                        </div>
+                        <div class="fw-bold" style="font-size:1.1rem;color:var(--sk-text)">
+                            Rp {{ number_format($summary['balance'], 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Pemasukan Bulan Ini --}}
             <div class="col-md-4">
-                <div class="h-100 p-4" style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-circle"
-                            style="width:44px;height:44px;background:#d1e7dd;color:#198754;font-size:1.2rem">
-                            <i class="bi bi-arrow-down-circle"></i>
-                        </div>
-                        <span class="fw-semibold"
-                            style="font-size:.75rem;color:#adb5bd;text-transform:uppercase;letter-spacing:.05em">
-                            Pemasukan
-                        </span>
+                <div class="d-flex align-items-center gap-3 px-4 py-3"
+                    style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                        style="width:40px;height:40px;background:#d1e7dd;color:#198754;font-size:1.1rem">
+                        <i class="bi bi-arrow-down-circle"></i>
                     </div>
-                    <h3 class="fw-bold mb-0" style="font-size:1.5rem;color:#198754">
-                        Rp {{ number_format($summary['total_income_month'], 0, ',', '.') }}
-                    </h3>
-                    <div class="mt-2" style="font-size:.75rem;color:#adb5bd">
-                        {{ $summary['current_month_label'] }}
+                    <div>
+                        <div
+                            style="font-size:.7rem;color:#adb5bd;text-transform:uppercase;letter-spacing:.05em;font-weight:600">
+                            Pemasukan — {{ $summary['current_month_label'] }}
+                        </div>
+                        <div class="fw-bold" style="font-size:1.1rem;color:#198754">
+                            Rp {{ number_format($summary['total_income_month'], 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Pengeluaran Bulan Ini --}}
             <div class="col-md-4">
-                <div class="h-100 p-4" style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-circle"
-                            style="width:44px;height:44px;background:#f8d7da;color:#dc3545;font-size:1.2rem">
-                            <i class="bi bi-arrow-up-circle"></i>
-                        </div>
-                        <span class="fw-semibold"
-                            style="font-size:.75rem;color:#adb5bd;text-transform:uppercase;letter-spacing:.05em">
-                            Pengeluaran
-                        </span>
+                <div class="d-flex align-items-center gap-3 px-4 py-3"
+                    style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                        style="width:40px;height:40px;background:#f8d7da;color:#dc3545;font-size:1.1rem">
+                        <i class="bi bi-arrow-up-circle"></i>
                     </div>
-                    <h3 class="fw-bold mb-0" style="font-size:1.5rem;color:#dc3545">
-                        Rp {{ number_format($summary['total_expense_month'], 0, ',', '.') }}
-                    </h3>
-                    <div class="mt-2" style="font-size:.75rem;color:#adb5bd">
-                        {{ $summary['current_month_label'] }}
+                    <div>
+                        <div
+                            style="font-size:.7rem;color:#adb5bd;text-transform:uppercase;letter-spacing:.05em;font-weight:600">
+                            Pengeluaran — {{ $summary['current_month_label'] }}
+                        </div>
+                        <div class="fw-bold" style="font-size:1.1rem;color:#dc3545">
+                            Rp {{ number_format($summary['total_expense_month'], 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,7 +147,7 @@
                     <div class="d-grid gap-2">
 
                         {{-- Admin Only: Tambah Pemasukan --}}
-                        @if (auth()->user()->role === 'admin')
+                        @if (auth()->user()->isAdmin())
                             <a href="{{ route('income.create') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -189,7 +165,7 @@
                         @endif
 
                         {{-- Admin Only: Approval Pengeluaran --}}
-                        @if (auth()->user()->role === 'admin')
+                        @if (auth()->user()->isAdmin())
                             <a href="{{ route('expenses.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -207,7 +183,7 @@
                         @endif
 
                         {{-- Admin Only: Approval Pengajuan Dana --}}
-                        @if (auth()->user()->role === 'admin')
+                        @if (auth()->user()->isAdmin())
                             <a href="{{ route('fund-requests.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -225,7 +201,7 @@
                         @endif
 
                         {{-- Admin Only: Kelola Pengguna --}}
-                        @if (auth()->user()->role === 'admin')
+                        @if (auth()->user()->isAdmin())
                             <a href="{{ route('users.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -243,7 +219,7 @@
                         @endif
 
                         {{-- User Only: Catat Pengeluaran --}}
-                        @if (auth()->user()->role === 'user')
+                        @if (!auth()->user()->isAdmin())
                             <a href="{{ route('expenses.create') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -261,7 +237,7 @@
                         @endif
 
                         {{-- User Only: Ajukan Dana --}}
-                        @if (auth()->user()->role === 'user')
+                        @if (!auth()->user()->isAdmin())
                             <a href="{{ route('fund-requests.create') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -279,7 +255,7 @@
                         @endif
 
                         {{-- User Only: Pengeluaran Saya --}}
-                        @if (auth()->user()->role === 'user')
+                        @if (!auth()->user()->isAdmin())
                             <a href="{{ route('expenses.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"
@@ -297,7 +273,7 @@
                         @endif
 
                         {{-- User Only: Pengajuan Dana Saya --}}
-                        @if (auth()->user()->role === 'user')
+                        @if (!auth()->user()->isAdmin())
                             <a href="{{ route('fund-requests.index') }}"
                                 class="d-flex align-items-center gap-3 p-3 text-decoration-none"
                                 style="background:#f8f9fa;border-radius:.75rem;transition:all .15s"

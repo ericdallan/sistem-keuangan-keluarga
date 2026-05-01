@@ -12,6 +12,7 @@ class Index extends Component
 {
     use WithPagination;
 
+    public string $search  = '';
     public string $status  = '';
     public string $month   = '';
     public int    $perPage = 10;
@@ -32,6 +33,7 @@ class Index extends Component
     protected function queryString(): array
     {
         return [
+            'search' => ['except' => ''],
             'status' => ['except' => ''],
             'month'  => ['except' => ''],
         ];
@@ -100,11 +102,17 @@ class Index extends Component
         $this->actionId = null;
     }
 
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
-        $isAdmin = Auth::user()->role === 'admin';
+        $isAdmin = Auth::user()->isAdmin();
 
         $fundRequests = $this->service->getList(
+            search: $this->search ?: null,
             status: $this->status ?: null,
             month: $this->month  ?: null,
             perPage: $this->perPage,
