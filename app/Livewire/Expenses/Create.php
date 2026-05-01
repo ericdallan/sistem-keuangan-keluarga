@@ -6,22 +6,33 @@ use App\Services\ExpenseService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * Komponen Livewire untuk formulir pembuatan data pengeluaran (Expense).
+ * Menangani input data, validasi file bukti transaksi, dan penyimpanan melalui service.
+ */
 class Create extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads; // Trait untuk menangani upload file
 
-    public string $amount      = '';
-    public string $description = '';
-    public string $date        = '';
-    public $evidence           = null;
+    // ── State (Form Fields) ──────────────────────────────────────
+    public string $amount       = '';
+    public string $description  = '';
+    public string $date         = '';
+    public $evidence            = null; // Properti untuk menampung file upload
 
     protected ExpenseService $service;
 
+    /**
+     * Injeksi Service ke dalam komponen saat booting.
+     */
     public function boot(ExpenseService $service): void
     {
         $this->service = $service;
     }
 
+    /**
+     * Definisi aturan validasi untuk input form.
+     */
     protected function rules(): array
     {
         return [
@@ -32,6 +43,9 @@ class Create extends Component
         ];
     }
 
+    /**
+     * Kustomisasi pesan error validasi agar lebih ramah pengguna.
+     */
     protected function messages(): array
     {
         return [
@@ -47,17 +61,28 @@ class Create extends Component
         ];
     }
 
+    /**
+     * Proses penyimpanan data pengeluaran.
+     * Melakukan otorisasi, validasi, dan memanggil service untuk store data.
+     */
     public function save(): void
     {
+        // Otorisasi: Pastikan pengguna memiliki izin menambah pengeluaran
         $this->authorize('create', \App\Models\Expense::class);
+
         $data = $this->validate();
 
+        // Menyimpan data melalui Service
         $this->service->store($data, $this->evidence);
 
+        // Notifikasi dan navigasi setelah sukses
         $this->dispatch('toast', message: 'Pengeluaran berhasil ditambahkan.', type: 'success');
         $this->redirectRoute('expenses.index', navigate: true);
     }
 
+    /**
+     * Merender view form tambah pengeluaran.
+     */
     public function render()
     {
         return view('livewire.expenses.create')

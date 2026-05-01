@@ -77,13 +77,13 @@ class Index extends Component
     public function confirmDelete(string $uuid): void
     {
         // Gunakan where('uuid_expenses', $uuid) untuk mencari data
-        $expense = Expense::where('uuid_expenses', $uuid)->firstOrFail();
+        $expense = $this->service->findByUuid($uuid);
 
         $this->authorize('delete', $expense);
 
         // Tetap simpan ID numerik ke $this->deleteId jika memang 
         // dibutuhkan untuk proses hapus di method destroy()
-        $this->deleteId          = $expense->id;
+        $this->deleteId          = $uuid;
         $this->deleteDescription = $expense->description;
 
         $this->dispatch('open-modal', modal: 'modal-delete-expense');
@@ -91,7 +91,7 @@ class Index extends Component
 
     public function destroy(): void
     {
-        $expense = $this->service->findOrFail($this->deleteId);
+        $expense = $this->service->findByUuid($this->deleteId);
         $this->authorize('delete', $expense);
 
         $this->service->delete($expense);
@@ -103,8 +103,8 @@ class Index extends Component
     // Preview Evidence
     public function previewEvidence(string $uuid): void
     {
-        // Gunakan findByUuid atau query biasa dengan first()
-        $expense = Expense::where('uuid_expenses', $uuid)->first();
+        // Menggunakan service untuk pencarian
+        $expense = $this->service->findByUuid($uuid);
 
         if (!$expense) {
             $this->dispatch('toast', message: 'Data pengeluaran tidak ditemukan.', type: 'error');
@@ -117,6 +117,8 @@ class Index extends Component
         }
 
         $this->previewEvidenceUrl = asset('storage/' . $expense->evidence_path);
+
+        // Logika penentuan tipe file
         $ext = strtolower(pathinfo($expense->evidence_path, PATHINFO_EXTENSION));
         $this->previewEvidenceType = in_array($ext, ['jpg', 'jpeg', 'png']) ? 'image' : 'pdf';
 
@@ -141,8 +143,7 @@ class Index extends Component
     public function executeAction(): void
     {
         $this->authorize('approve', Expense::class);
-        $expense = $this->service->findOrFail($this->actionId);
-
+        $expense = $this->service->findByUuid($this->actionId);
         if ($this->actionType === 'approve') {
             $this->service->approve($expense);
             $message = 'Pengeluaran disetujui.';

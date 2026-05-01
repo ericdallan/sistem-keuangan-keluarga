@@ -107,6 +107,14 @@ class ExpenseService
     }
 
     /**
+     * Mencari data Expense berdasarkan uuid
+     */
+    public function findByUuid(string $uuid): Expense
+    {
+        return Expense::where('uuid_expenses', $uuid)->firstOrFail();
+    }
+
+    /**
      * Menghapus pengeluaran dan file bukti terkait.
      */
     public function delete(Expense $expense): void
