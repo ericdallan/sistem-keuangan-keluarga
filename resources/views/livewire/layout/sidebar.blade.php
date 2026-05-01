@@ -59,12 +59,6 @@
 
             $laporan = [
                 [
-                    'route' => 'statistics.index',
-                    'icon' => 'bi-bar-chart-line',
-                    'label' => 'Statistik',
-                    'match' => 'statistics.*',
-                ],
-                [
                     'route' => 'reports.index',
                     'icon' => 'bi-file-earmark-text',
                     'label' => 'Laporan',

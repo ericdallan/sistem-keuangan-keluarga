@@ -55,6 +55,33 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+
+    {{-- Global Chart Registry untuk Livewire --}}
+    <script>
+        window.SKK = window.SKK || {};
+        window.SKK.charts = window.SKK.charts || {};
+
+        window.SKK.destroyAllCharts = function() {
+            Object.values(window.SKK.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            window.SKK.charts = {};
+        };
+
+        window.SKK.registerChart = function(name, chartInstance) {
+            if (window.SKK.charts[name]) {
+                window.SKK.charts[name].destroy();
+            }
+            window.SKK.charts[name] = chartInstance;
+        };
+
+        // Auto-cleanup saat Livewire navigasi
+        document.addEventListener('livewire:navigating', function() {
+            window.SKK.destroyAllCharts();
+        });
+    </script>
     <script>
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('open-modal', (data) => {

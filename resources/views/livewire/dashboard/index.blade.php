@@ -303,20 +303,21 @@
 @push('scripts')
     <script>
         (function() {
-            let chartInstance = null;
+            // Global registry untuk dashboard chart
+            window.SKK = window.SKK || {};
 
             function initChart() {
                 const canvas = document.getElementById('financeChart');
                 if (!canvas) return;
 
-                // Hancurkan chart lama jika ada
-                if (chartInstance) {
-                    chartInstance.destroy();
-                    chartInstance = null;
+                // Destroy existing dari registry
+                if (window.SKK.financeChart) {
+                    window.SKK.financeChart.destroy();
+                    window.SKK.financeChart = null;
                 }
 
                 const ctx = canvas.getContext('2d');
-                chartInstance = new Chart(ctx, {
+                window.SKK.financeChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: @json($chartData['months']),
@@ -422,10 +423,16 @@
                 });
             }
 
-            // Inisialisasi pertama kali (hard load)
-            document.addEventListener('DOMContentLoaded', initChart);
+            // Cleanup SEBELUM navigasi
+            document.addEventListener('livewire:navigating', function() {
+                if (window.SKK.financeChart) {
+                    window.SKK.financeChart.destroy();
+                    window.SKK.financeChart = null;
+                }
+            });
 
-            // Inisialisasi ulang setiap kali wire:navigate selesai
+            // Inisialisasi
+            document.addEventListener('DOMContentLoaded', initChart);
             document.addEventListener('livewire:navigated', initChart);
         })();
     </script>

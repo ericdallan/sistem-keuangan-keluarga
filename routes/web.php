@@ -8,7 +8,6 @@ use App\Livewire\Income;
 use App\Livewire\Expenses;
 use App\Livewire\FundRequests;
 use App\Livewire\Users;
-use App\Livewire\Statistics;
 use App\Livewire\Reports;
 use App\Livewire\Profile\EditProfile;
 
@@ -62,9 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{fundRequest}/edit', FundRequests\Edit::class)->name('edit');
     });
 
-    // ── Laporan & Statistik ───────────────────────────────────────
-    // Dapat diakses semua role
-    Route::get('/statistics', Statistics\Index::class)->name('statistics.index');
+    // ── Laporan  ───────────────────────────────────────
     Route::get('/reports', Reports\Index::class)->name('reports.index');
 
     // ── Profile ───────────────────────────────────────────────────
