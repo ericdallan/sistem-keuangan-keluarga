@@ -1,20 +1,210 @@
 {{-- resources/views/livewire/reports/index.blade.php --}}
 <div class="py-2">
     <div class="container-fluid">
-
         {{-- Header --}}
         <div class="row mb-4">
             <div class="col-12">
-                <div class="px-4 py-3 text-white"
+                <div class="px-4 py-3 text-white d-flex align-items-center justify-content-between"
                     style="background:var(--sk-primary-gradient);border-radius:1rem;box-shadow:0 4px 20px rgba(25,135,84,.25)">
-                    <h5 class="fw-bold mb-0">Laporan Keuangan</h5>
-                    <p class="mb-0 opacity-75" style="font-size:.8rem">
-                        {{ $report['month_label'] }}
-                    </p>
+                    <div>
+                        <h5 class="fw-bold mb-0">Laporan Keuangan</h5>
+                        <p class="mb-0 opacity-75" style="font-size:.8rem">
+                            {{ $report['month_label'] }}
+                        </p>
+                    </div>
+                    {{-- Export Button --}}
+                    <button wire:click="openExportModal"
+                        class="btn btn-light btn-sm rounded-pill fw-semibold d-flex align-items-center gap-2"
+                        style="font-size:.8rem;padding:8px 18px">
+                        <i class="bi bi-download"></i>
+                        Export
+                    </button>
                 </div>
             </div>
         </div>
 
+        {{-- Export Modal --}}
+        @if ($showExportModal)
+            <div class="modal show d-block" tabindex="-1" style="background:rgba(0,0,0,.5);z-index:1050">
+                <div class="modal-dialog modal-dialog-centered" style="max-width:480px">
+                    <div class="modal-content border-0"
+                        style="border-radius:1rem;box-shadow:0 8px 32px rgba(0,0,0,.15)">
+
+                        {{-- Header Modal --}}
+                        <div class="modal-header border-0 pb-0 px-4 pt-4">
+                            <h5 class="modal-title fw-bold" style="font-size:1.1rem">
+                                <i class="bi bi-file-earmark-text me-2" style="color:var(--sk-primary)"></i>
+                                Export Laporan
+                            </h5>
+                            <button wire:click="closeExportModal" type="button" class="btn-close"></button>
+                        </div>
+
+                        <div class="modal-body p-4">
+
+                            {{-- Step 1: Format --}}
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold"
+                                    style="font-size:.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:.05em">
+                                    Format File
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <button wire:click="$set('exportFormat', 'pdf')"
+                                        class="btn flex-fill fw-semibold {{ $exportFormat === 'pdf' ? 'btn-danger' : 'btn-outline-danger' }}"
+                                        style="border-radius:.75rem;font-size:.85rem;padding:10px">
+                                        <i class="bi bi-file-pdf me-1"></i>PDF
+                                    </button>
+                                    <button wire:click="$set('exportFormat', 'excel')"
+                                        class="btn flex-fill fw-semibold {{ $exportFormat === 'excel' ? 'btn-success' : 'btn-outline-success' }}"
+                                        style="border-radius:.75rem;font-size:.85rem;padding:10px">
+                                        <i class="bi bi-file-excel me-1"></i>Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Step 2: Periode --}}
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold"
+                                        style="font-size:.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:.05em">
+                                        Dari Bulan
+                                    </label>
+                                    <input type="month" wire:model="exportStartMonth" class="form-control"
+                                        style="border-radius:.75rem;font-size:.85rem">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold"
+                                        style="font-size:.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:.05em">
+                                        Sampai Bulan
+                                    </label>
+                                    <input type="month" wire:model="exportEndMonth" class="form-control"
+                                        style="border-radius:.75rem;font-size:.85rem">
+                                </div>
+                            </div>
+
+                            {{-- Step 3: Filter Pengguna (Admin Only) --}}
+                            @if ($isAdmin)
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold"
+                                        style="font-size:.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:.05em">
+                                        Pengguna
+                                    </label>
+                                    <select wire:model="exportSelectedUser" class="form-select"
+                                        style="border-radius:.75rem;font-size:.85rem">
+                                        <option value="">Semua Pengguna</option>
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user['id'] }}">{{ $user['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            {{-- Step 4: Filter Kategori --}}
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold"
+                                    style="font-size:.8rem;color:#6c757d;text-transform:uppercase;letter-spacing:.05em">
+                                    Kategori
+                                </label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <label class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                                        style="background:#f8f9fa;cursor:pointer;border:2px solid {{ in_array('income', $selectedCategories) ? '#198754' : 'transparent' }}">
+                                        <input type="checkbox" wire:model="selectedCategories" value="income"
+                                            class="form-check-input m-0">
+                                        <span style="font-size:.85rem;font-weight:500;color:#198754">
+                                            <i class="bi bi-arrow-down-circle me-1"></i>Pemasukan
+                                        </span>
+                                    </label>
+                                    <label class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                                        style="background:#f8f9fa;cursor:pointer;border:2px solid {{ in_array('expense', $selectedCategories) ? '#dc3545' : 'transparent' }}">
+                                        <input type="checkbox" wire:model="selectedCategories" value="expense"
+                                            class="form-check-input m-0">
+                                        <span style="font-size:.85rem;font-weight:500;color:#dc3545">
+                                            <i class="bi bi-arrow-up-circle me-1"></i>Pengeluaran
+                                        </span>
+                                    </label>
+                                    <label class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                                        style="background:#f8f9fa;cursor:pointer;border:2px solid {{ in_array('fund', $selectedCategories) ? '#0dcaf0' : 'transparent' }}">
+                                        <input type="checkbox" wire:model="selectedCategories" value="fund"
+                                            class="form-check-input m-0">
+                                        <span style="font-size:.85rem;font-weight:500;color:#0dcaf0">
+                                            <i class="bi bi-cash-coin me-1"></i>Pengajuan Dana
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- Info Periode --}}
+                            <div class="p-3 mb-4" style="background:#f8f9fa;border-radius:.75rem">
+                                <div class="d-flex align-items-center gap-2" style="font-size:.8rem;color:#6c757d">
+                                    <i class="bi bi-calendar-range"></i>
+                                    <span>Periode: <strong
+                                            class="text-dark">{{ $this->getExportLabel() }}</strong></span>
+                                </div>
+                            </div>
+
+                            {{-- Action Buttons --}}
+                            <div class="d-flex gap-2">
+                                @if ($exportFormat === 'pdf')
+                                    <button wire:click="previewPdf" wire:loading.attr="disabled"
+                                        class="btn fw-semibold flex-fill"
+                                        style="background:#e9ecef;color:#495057;border-radius:.75rem;padding:12px;font-size:.85rem">
+                                        <span wire:loading.remove wire:target="previewPdf">
+                                            <i class="bi bi-eye me-2"></i>Preview
+                                        </span>
+                                        <span wire:loading wire:target="previewPdf">
+                                            <i class="bi bi-arrow-repeat spin me-2"></i>Memuat...
+                                        </span>
+                                    </button>
+                                @endif
+
+                                <button wire:click="downloadExport" wire:loading.attr="disabled"
+                                    class="btn fw-bold text-white flex-fill"
+                                    style="background:var(--sk-primary);border-radius:.75rem;padding:12px;font-size:.85rem">
+                                    <span wire:loading.remove wire:target="downloadExport">
+                                        <i class="bi bi-download me-2"></i>Download {{ strtoupper($exportFormat) }}
+                                    </span>
+                                    <span wire:loading wire:target="downloadExport">
+                                        <i class="bi bi-arrow-repeat spin me-2"></i>Memproses...
+                                    </span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Preview Modal (PDF Only) --}}
+        @if ($showPreviewModal && $previewData)
+            <div class="modal show d-block" tabindex="-1" style="background:rgba(0,0,0,.7);z-index:1060">
+                <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width:900px;height:90vh">
+                    <div class="modal-content border-0 h-100" style="border-radius:1rem;overflow:hidden">
+
+                        {{-- Header --}}
+                        <div class="modal-header border-0 py-3 px-4" style="background:#f8f9fa">
+                            <h5 class="modal-title fw-bold" style="font-size:1rem">
+                                <i class="bi bi-eye me-2" style="color:var(--sk-primary)"></i>
+                                Preview PDF
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center ms-auto">
+                                <button wire:click="downloadExport" class="btn btn-sm fw-semibold text-white"
+                                    style="border-radius:.5rem; background:var(--sk-primary); border:none">
+                                    <i class="bi bi-download me-1"></i>Download
+                                </button>
+                                <button wire:click="$set('showPreviewModal', false)"
+                                    class="btn btn-sm btn-outline-secondary" style="border-radius:.5rem">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {{-- Preview Content --}}
+                        <div class="modal-body p-0 overflow-auto bg-white">
+                            @include('exports.report-pdf-preview', ['data' => $previewData])
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         <div class="row mb-4">
             <div class="col-12">
                 <div class="p-4" style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">
@@ -151,14 +341,16 @@
 
                                             <!-- Nama User -->
                                             <div class="flex-grow-1 min-width-0">
-                                                <div class="fw-semibold" style="font-size:.95rem; color:var(--sk-text)">
+                                                <div class="fw-semibold"
+                                                    style="font-size:.95rem; color:var(--sk-text)">
                                                     {{ $topUser['user_name'] }}
                                                 </div>
                                             </div>
 
                                             <!-- Total Amount -->
                                             <div class="text-end flex-shrink-0" style="min-width: 90px;">
-                                                <div class="fw-bold" style="font-size:1.05rem; color:var(--sk-primary)">
+                                                <div class="fw-bold"
+                                                    style="font-size:1.05rem; color:var(--sk-primary)">
                                                     Rp {{ number_format($topUser['total_amount'], 0, ',', '.') }}
                                                 </div>
                                                 <div style="font-size:.75rem; color:#adb5bd;">Total</div>
@@ -174,7 +366,8 @@
                                                 <span style="color:#6c757d; font-size:.85rem">
                                                     {{ number_format($topUser['expense_count']) }} pengeluaran
                                                 </span>
-                                                <span class="ms-auto fw-medium" style="color:#dc3545; font-size:.9rem">
+                                                <span class="ms-auto fw-medium"
+                                                    style="color:#dc3545; font-size:.9rem">
                                                     Rp {{ number_format($topUser['expense_amount'], 0, ',', '.') }}
                                                 </span>
                                             </div>
@@ -183,11 +376,13 @@
                                         <!-- Baris 3: Pengajuan (full width) -->
                                         <div class="mt-2">
                                             <div class="d-flex align-items-center gap-2">
-                                                <i class="bi bi-cash-coin" style="color:#0dcaf0; font-size:1.1rem"></i>
+                                                <i class="bi bi-cash-coin"
+                                                    style="color:#0dcaf0; font-size:1.1rem"></i>
                                                 <span style="color:#6c757d; font-size:.85rem">
                                                     {{ number_format($topUser['fund_count']) }} pengajuan
                                                 </span>
-                                                <span class="ms-auto fw-medium" style="color:#0dcaf0; font-size:.9rem">
+                                                <span class="ms-auto fw-medium"
+                                                    style="color:#0dcaf0; font-size:.9rem">
                                                     Rp {{ number_format($topUser['fund_amount'], 0, ',', '.') }}
                                                 </span>
                                             </div>
@@ -487,3 +682,41 @@
 
     </div>
 </div>
+@push('styles')
+    <style>
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+@endpush
+@push('scripts')
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('triggerDownload', (params) => {
+                const {
+                    format,
+                    start,
+                    end,
+                    user
+                } = params[0];
+                const url = new URL('{{ route('reports.export') }}', window.location.origin);
+                url.searchParams.set('format', format);
+                url.searchParams.set('start', start);
+                url.searchParams.set('end', end);
+                if (user) url.searchParams.set('user', user);
+
+                window.location.href = url.toString();
+            });
+        });
+    </script>
+@endpush

@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
+// ── Controllers ───────────────────────────────────────────────
+use App\Http\Controllers\ReportExportController;
+
 // ── App Components ───────────────────────────────────────────────
 use App\Livewire\Dashboard\Dashboard;
 use App\Livewire\Income;
@@ -63,6 +66,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Laporan  ───────────────────────────────────────
     Route::get('/reports', Reports\Index::class)->name('reports.index');
+    Route::get('/reports/export', [ReportExportController::class, 'export'])->name('reports.export');
 
     // ── Profile ───────────────────────────────────────────────────
     Route::get('/profile', EditProfile::class)->name('profile.edit');
