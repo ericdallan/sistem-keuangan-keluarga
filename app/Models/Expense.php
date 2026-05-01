@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Model Expense (Pengeluaran)
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Expense extends Model
 {
     use HasUuids;
+    use HasFactory;
 
     /**
      * Konversi tipe data otomatis untuk kolom tertentu.

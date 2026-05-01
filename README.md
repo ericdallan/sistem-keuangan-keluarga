@@ -106,7 +106,7 @@ erDiagram
 
     USERS {
         bigint id
-        uuid uuid_users
+        uuid uuid
         string name
         string email
         string password
@@ -116,7 +116,7 @@ erDiagram
 
     INCOMES {
         bigint id
-        uuid uuid_incomes
+        uuid uuid
         bigint user_id
         integer amount
         string description
@@ -126,7 +126,7 @@ erDiagram
 
     EXPENSES {
         bigint id
-        uuid uuid_expenses
+        uuid uuid
         bigint user_id
         integer amount
         string description
@@ -137,7 +137,7 @@ erDiagram
 
     FUND_REQUESTS {
         bigint id
-        uuid uuid_fund_requests
+        uuid uuid
         bigint user_id
         integer amount
         string reason
