@@ -65,29 +65,7 @@
                 </thead>
                 <tbody>
                     @forelse ($fundRequests as $fund)
-                        @php
-                            $status = $fund->status;
-                            $badge = match ($status) {
-                                'approved' => [
-                                    'bg' => '#d1e7dd',
-                                    'color' => '#198754',
-                                    'icon' => 'bi-check-circle-fill',
-                                    'label' => 'Disetujui',
-                                ],
-                                'rejected' => [
-                                    'bg' => '#f8d7da',
-                                    'color' => '#dc3545',
-                                    'icon' => 'bi-x-circle-fill',
-                                    'label' => 'Ditolak',
-                                ],
-                                default => [
-                                    'bg' => '#fff3cd',
-                                    'color' => '#856404',
-                                    'icon' => 'bi-clock-fill',
-                                    'label' => 'Pending',
-                                ],
-                            };
-                        @endphp
+                        @php $badge = $fund->status_badge; @endphp
                         <tr wire:key="fund-{{ $fund->id }}">
                             <td class="px-4 text-muted">{{ $fundRequests->firstItem() + $loop->index }}</td>
 
@@ -221,7 +199,8 @@
 
                         <h6 class="fw-700 mb-1">Setujui Pengajuan?</h6>
                         <p class="text-muted small mb-3">Status pengajuan akan diubah menjadi
-                            <strong>Disetujui</strong>.</p>
+                            <strong>Disetujui</strong>.
+                        </p>
 
                         {{-- Info pencairan otomatis --}}
                         @if ($actionId)

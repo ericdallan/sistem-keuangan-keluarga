@@ -61,4 +61,8 @@ class FundRequest extends Model
             ],
         };
     }
+    public function getStatusBadgeAttribute(): array
+    {
+        return static::statusBadge($this->status);
+    }
 }

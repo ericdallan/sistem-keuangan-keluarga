@@ -76,7 +76,15 @@ class Expense extends Model
             ],
         };
     }
-
+     
+    /**
+     * Get status badge configuration (instance accessor)
+     */
+    public function getStatusBadgeAttribute(): array
+    {
+        return static::statusBadge($this->status);
+    }
+    
     /**
      * Check if expense is editable (only pending)
      */
