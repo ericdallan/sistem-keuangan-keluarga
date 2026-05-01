@@ -277,7 +277,7 @@
                         'bg' => '#fff3cd',
                         'color' => '#856404',
                         'label' => 'Pending ' . $report['month_label'],
-                        'value' => $report['summary']['total_expense_pending'],
+                        'value' => $report['summary']['total_expense_pending'] + $report['summary']['fund_pending'],
                     ],
                 ];
             @endphp

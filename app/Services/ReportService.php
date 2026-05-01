@@ -61,6 +61,7 @@ class ReportService
         }
         $totalFundRequested = (float) $fundQuery->sum('amount');
         $totalFundApproved = (float) (clone $fundQuery)->where('status', 'approved')->sum('amount');
+        $totalFundPending   = (float) (clone $fundQuery)->where('status', 'pending')->sum('amount');
 
         // Saldo akumulasi
         $accumulatedIncome = (float) Income::when($filterUserId, fn($q) => $q->where('user_id', $filterUserId))->sum('amount');
@@ -83,6 +84,7 @@ class ReportService
                 'total_expense' => $totalExpense,
                 'total_expense_pending' => $totalPending,
                 'total_expense_rejected' => $totalRejected,
+                'fund_pending'          => $totalFundPending,
                 'fund_requested' => $totalFundRequested,
                 'fund_approved' => $totalFundApproved,
             ],
