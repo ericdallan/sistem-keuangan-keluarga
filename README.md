@@ -90,12 +90,106 @@ flowchart TD
     D --> E[(Database MySQL)]
 ```
 
-Aplikasi ini menggunakan pendekatan berbasis layer:
+Aplikasi ini menggunakan arsitektur berbasis layer untuk menjaga kode tetap terstruktur dan mudah dikembangkan:
 
 - **Livewire Components** untuk tampilan dan interaksi user
 - **Service Layer** untuk logika bisnis
 - **Models (Eloquent)** untuk pengolahan data
 - **Database** sebagai penyimpanan
+
+---
+
+## 🧩 ERD (Entity Relationship Diagram)
+
+```mermaid
+erDiagram
+
+    USERS {
+        bigint id
+        uuid uuid_users
+        string name
+        string email
+        string password
+        string role
+        string position
+    }
+
+    INCOMES {
+        bigint id
+        uuid uuid_incomes
+        bigint user_id
+        integer amount
+        string description
+        date date
+        string category
+    }
+
+    EXPENSES {
+        bigint id
+        uuid uuid_expenses
+        bigint user_id
+        integer amount
+        string description
+        date date
+        string evidence_path
+        string status
+    }
+
+    FUND_REQUESTS {
+        bigint id
+        uuid uuid_fund_requests
+        bigint user_id
+        integer amount
+        string reason
+        date date
+        string month
+        string status
+    }
+
+    NOTIFICATIONS {
+        bigint id
+        bigint user_id
+        bigint notifiable_id
+        string notifiable_type
+        json data
+        datetime read_at
+    }
+
+    USERS ||--o{ INCOMES : has
+    USERS ||--o{ EXPENSES : has
+    USERS ||--o{ FUND_REQUESTS : has
+    USERS ||--o{ NOTIFICATIONS : has
+
+    EXPENSES ||--o{ NOTIFICATIONS : morph
+    FUND_REQUESTS ||--o{ NOTIFICATIONS : morph
+```
+
+---
+
+### 🔗 Relasi Antar Tabel
+
+- 1 User bisa punya banyak:
+    - Income (Pemasukan)
+    - Expense (Pengeluaran)
+    - Fund Request (Pengajuan Dana)
+    - Notification
+
+- Notification menggunakan **polymorphic relation**, artinya:
+    - Bisa berasal dari Expense
+    - Bisa juga dari Fund Request
+
+Contoh:
+
+- Saat expense di-approve → buat notification
+- Saat fund request di-reject → buat notification
+
+---
+
+### 💡 Design Notes
+
+- Menggunakan UUID untuk meningkatkan keamanan (URL tidak mudah ditebak)
+- Menggunakan polymorphic relationship untuk fleksibilitas sistem notifikasi
+- Struktur relasi dibuat sederhana agar mudah dikembangkan (scalable)
 
 ---
 
