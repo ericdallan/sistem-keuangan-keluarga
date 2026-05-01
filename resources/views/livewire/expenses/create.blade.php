@@ -87,20 +87,29 @@
                                 </div>
 
                                 {{-- Area Gambar --}}
+                                {{-- Area Gambar / PDF --}}
                                 @if (in_array($evidence->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']))
                                     <div class="position-relative d-inline-block mb-2">
                                         <img src="{{ $evidence->temporaryUrl() }}" class="img-thumbnail shadow-sm"
                                             style="max-height: 150px; border-radius: .5rem; border-color: #ddd;">
-
-                                        {{-- Tombol Hapus --}}
                                         <button type="button" wire:click="$set('evidence', null)"
                                             class="btn btn-sm btn-danger shadow-sm position-absolute top-0 end-0 m-1"
                                             style="line-height:1; border-radius:50%; font-size: .7rem; padding: 4px 7px;">
                                             &times;
                                         </button>
                                     </div>
+                                @elseif ($evidence->getClientOriginalExtension() === 'pdf')
+                                    <button type="button" data-action="preview-pdf-upload"
+                                        class="btn btn-sm d-flex align-items-center gap-2 mb-2"
+                                        style="background:var(--sk-primary-light);color:var(--sk-primary);border:none;border-radius:.5rem">
+                                        <i class="bi bi-eye"></i> Lihat Preview PDF
+                                    </button>
+                                    <button type="button" wire:click="$set('evidence', null)"
+                                        class="btn btn-sm btn-outline-danger mb-2"
+                                        style="border-radius:.4rem;font-size:.75rem">
+                                        <i class="bi bi-trash3 me-1"></i> Hapus
+                                    </button>
                                 @endif
-
                                 {{-- Nama File --}}
                                 <div class="d-flex align-items-center gap-2 p-2 rounded"
                                     style="background:var(--sk-primary-light);font-size:.8rem;color:var(--sk-primary)">
@@ -132,4 +141,47 @@
             </div>
         </div>
     </div>
+    {{-- Modal Preview PDF Upload --}}
+    <div class="modal fade" id="modal-pdf-upload-preview" tabindex="-1" aria-modal="true" role="dialog"
+        wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow" style="border-radius:1rem">
+                <div class="modal-header border-0 pb-0">
+                    <h6 class="fw-700 mb-0"><i class="bi bi-file-earmark-pdf me-2"></i>Preview PDF</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div style="height:70vh">
+                        <iframe id="pdf-upload-frame" src="" width="100%" height="100%"
+                            style="border:none;border-radius:.5rem"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @script
+        <script>
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('[data-action="preview-pdf-upload"]')) return;
+
+                const input = document.querySelector('input[type="file"]');
+                if (!input || !input.files || !input.files[0]) return;
+
+                const blobUrl = URL.createObjectURL(input.files[0]);
+                const frame = document.getElementById('pdf-upload-frame');
+                if (frame) frame.src = blobUrl;
+
+                const modalEl = document.getElementById('modal-pdf-upload-preview');
+                if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            });
+
+            // Reset iframe saat modal ditutup
+            document.getElementById('modal-pdf-upload-preview')
+                ?.addEventListener('hidden.bs.modal', function() {
+                    const frame = document.getElementById('pdf-upload-frame');
+                    if (frame) frame.src = '';
+                });
+        </script>
+    @endscript
 </div>
