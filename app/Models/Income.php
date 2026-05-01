@@ -60,7 +60,19 @@ class Income extends Model
             default        => ['bg' => '#e2e3e5', 'color' => '#383d41', 'icon' => 'bi-tag', 'label' => 'Lainnya'],
         };
     }
-
+    
+    /**
+     * Menentukan konfigurasi badge berdasarkan Status pemasukan.
+     */
+    public static function statusBadge(string $status): array
+    {
+        return [
+            'bg'    => '#d1e7dd',
+            'color' => '#0a5c36',
+            'icon'  => 'bi-check-circle-fill',
+            'label' => 'Tercatat',
+        ];
+    }
     // ── Accessors ──────────────────────────────────────────────────
 
     /**

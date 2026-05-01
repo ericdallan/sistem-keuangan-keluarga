@@ -16,7 +16,7 @@ class Dashboard extends Component
         $summary = $service->getSummary();
         $chartData = $service->getMonthlyChart();
 
-        return view('livewire.dashboard', [
+        return view('livewire.dashboard.index', [
             'summary' => $summary,
             'chartData' => $chartData,
         ])->layout('livewire.layout.app');
