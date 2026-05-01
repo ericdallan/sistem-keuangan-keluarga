@@ -81,30 +81,67 @@ php artisan migrate
 php artisan storage:link
 </pre>
 <h3>7. Jalankan Aplikasi</h3>
+<p>Jika menggunakan <strong>Laragon</strong>, pastikan folder proyek berada di direktori <code>www</code>. Laragon akan otomatis membuat virtual host (misal: <code>http://sistem-keuangan-keluarga.test</code>). Jika tidak menggunakan Laragon, jalankan perintah:</p>
 <pre>
 php artisan serve
 </pre>
-<p>Buka browser dan akses: <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a></p>
-<h2>Role Pengguna</h2>
+<h2>Role Pengguna & Akun Demo</h2>
+<p>Sistem ini telah dilengkapi dengan <strong>Database Seeder</strong> untuk memudahkan proses pengujian. Setelah menjalankan <code>php artisan migrate --seed</code>, akun berikut akan tersedia secara otomatis:</p>
+
 <table>
-  <tr><th>Role</th><th>Pengguna</th><th>Hak Akses</th></tr>
-  <tr><td><strong>Admin</strong></td><td>Suami</td><td>Full Access + Approval Management</td></tr>
-  <tr><td><strong>User</strong></td><td>Istri / Anak</td><td>Membuat pengajuan & pengeluaran (butuh approval)</td></tr>
+  <tr>
+    <th>Role</th>
+    <th>Position</th>
+    <th>Email</th>
+    <th>Password</th>
+  </tr>
+  <tr>
+    <td><strong>Admin</strong></td>
+    <td>Husband</td>
+    <td>admin@gmail.com</td>
+    <td>password123</td>
+  </tr>
+  <tr>
+    <td><strong>User</strong></td>
+    <td>Wife</td>
+    <td>wif@gmail.com</td>
+    <td>password123</td>
+  </tr>
+  <tr>
+    <td><strong>User</strong></td>
+    <td>Child</td>
+    <td>child1@gmail.com</td>
+    <td>password123</td>
+  </tr>
+  <tr>
+    <td><strong>User</strong></td>
+    <td>Child</td>
+    <td>child2@gmail.com</td>
+    <td>password123</td>
+  </tr>
 </table>
+
+<p><strong>Hak Akses:</strong></p>
+<ul>
+  <li><strong>Admin (Husband):</strong> Memiliki hak akses penuh, termasuk pengelolaan sistem, persetujuan (approval) pengajuan dana, dan manajemen laporan keuangan.</li>
+  <li><strong>User (Wife/Child):</strong> Dapat membuat pengajuan dana baru dan mencatat pengeluaran pribadi yang memerlukan persetujuan dari Admin.</li>
+</ul>
 <h2>Struktur Folder Penting</h2>
 <pre>
 app/
-├── Livewire/                  → Class-Based Livewire Components
-└── Policies/                  → Authorization Logic (RBAC)
-
-storage/
-└── app/public/evidence/ → Penyimpanan bukti transaksi
+├── Livewire/              # Komponen utama (Class-Based)
+├── Models/                # Database Eloquent models
+├── Policies/              # Aturan hak akses (RBAC)
+├── Providers/             # Service Providers
+└── Services/              # Business logic (dipisah dari komponen)
 
 resources/
-└── views/livewire/ → Blade views untuk Livewire
+├── views/
+└── livewire/ # Blade templates untuk setiap komponen
+storage/
+└── app/public/evidence/ # Penyimpanan bukti transaksi (Struk/PDF)
 
-</pre>
-<h2>Testing</h2>
-<pre>
-php artisan test
+routes/
+└── web.php # Pengaturan routing aplikasi
+
 </pre>
