@@ -104,8 +104,12 @@
             </div>
         @endif
 
-        {{-- User: Alert Status Pengajuan  --}}
-        @if (auth()->user()->role === 'user' && isset($summary['my_pending_expenses']) && $summary['my_pending_expenses'] > 0)
+        {{-- User: Alert Status Pending --}}
+        @php
+            $totalPending = ($summary['my_pending_expenses'] ?? 0) + ($summary['my_pending_fund_requests'] ?? 0);
+        @endphp
+
+        @if (auth()->user()->role === 'user' && $totalPending > 0)
             <div class="d-flex align-items-center gap-3 mb-4 p-3"
                 style="background:#cff4fc;border-radius:1rem;box-shadow:0 2px 8px rgba(0,0,0,.05);border-left:4px solid #0dcaf0">
                 <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
@@ -114,17 +118,35 @@
                 </div>
                 <div class="flex-grow-1">
                     <span class="fw-semibold" style="font-size:.85rem;color:#055160">
-                        Kamu memiliki <strong>{{ $summary['my_pending_expenses'] }} pengeluaran</strong> yang masih
-                        pending.
+                        @if ($summary['my_pending_expenses'] > 0 && $summary['my_pending_fund_requests'] > 0)
+                            Kamu memiliki <strong>{{ $summary['my_pending_expenses'] }} pengeluaran</strong> dan
+                            <strong>{{ $summary['my_pending_fund_requests'] }} pengajuan dana</strong> yang masih
+                            pending.
+                        @elseif ($summary['my_pending_expenses'] > 0)
+                            Kamu memiliki <strong>{{ $summary['my_pending_expenses'] }} pengeluaran</strong> yang masih
+                            pending.
+                        @else
+                            Kamu memiliki <strong>{{ $summary['my_pending_fund_requests'] }} pengajuan dana</strong>
+                            yang masih pending.
+                        @endif
                     </span>
                 </div>
-                <a href="{{ route('expenses.index') }}" class="btn btn-sm rounded-pill fw-semibold flex-shrink-0"
-                    style="background:#0dcaf0;color:#fff;font-size:.75rem;padding:5px 14px">
-                    Cek Status
-                </a>
+                <div class="d-flex gap-2 flex-shrink-0">
+                    @if ($summary['my_pending_expenses'] > 0)
+                        <a href="{{ route('expenses.index') }}" class="btn btn-sm rounded-pill fw-semibold"
+                            style="background:#0dcaf0;color:#fff;font-size:.75rem;padding:5px 14px">
+                            Pengeluaran
+                        </a>
+                    @endif
+                    @if ($summary['my_pending_fund_requests'] > 0)
+                        <a href="{{ route('fund-requests.index') }}" class="btn btn-sm rounded-pill fw-semibold"
+                            style="background:#ffc107;color:#fff;font-size:.75rem;padding:5px 14px">
+                            Pengajuan Dana
+                        </a>
+                    @endif
+                </div>
             </div>
         @endif
-
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="h-100 p-4" style="background:#fff;border-radius:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06)">

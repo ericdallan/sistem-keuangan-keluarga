@@ -44,6 +44,7 @@ class DashboardService
             $pendingExpenses     = Expense::where('status', 'pending')->count();
             $pendingFundRequests = FundRequest::where('status', 'pending')->count();
             $myPendingExpenses   = 0;
+            $myPendingFundRequests = 0;
         } else {
             // ── User: Mengambil data khusus milik user yang sedang login ──
             $totalIncomeAll   = (float) Income::where('user_id', $userId)->sum('amount');
@@ -69,19 +70,23 @@ class DashboardService
             $myPendingExpenses   = Expense::where('user_id', $userId)
                 ->where('status', 'pending')
                 ->count();
+            $myPendingFundRequests = FundRequest::where('user_id', $userId)
+                ->where('status', 'pending')
+                ->count();
         }
 
         return [
-            'total_income_all'      => $totalIncomeAll,
-            'total_income_month'    => $totalIncomeMonth,
-            'total_expense_all'     => $totalExpenseAll,
-            'total_expense_month'   => $totalExpenseMonth,
-            'balance'               => $balance,
-            'pending_expenses'      => $pendingExpenses,
-            'pending_fund_requests' => $pendingFundRequests,
-            'recent_activities'     => $this->getRecentActivities($isAdmin, $userId),
-            'my_pending_expenses'   => $myPendingExpenses,
-            'current_month_label'   => $now->translatedFormat('F Y'),
+            'total_income_all'          => $totalIncomeAll,
+            'total_income_month'        => $totalIncomeMonth,
+            'total_expense_all'         => $totalExpenseAll,
+            'total_expense_month'       => $totalExpenseMonth,
+            'balance'                   => $balance,
+            'pending_expenses'          => $pendingExpenses,
+            'pending_fund_requests'     => $pendingFundRequests,
+            'my_pending_fund_requests'  => $myPendingFundRequests,
+            'recent_activities'         => $this->getRecentActivities($isAdmin, $userId),
+            'my_pending_expenses'       => $myPendingExpenses,
+            'current_month_label'       => $now->translatedFormat('F Y'),
         ];
     }
 
