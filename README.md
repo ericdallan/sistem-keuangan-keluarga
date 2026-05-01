@@ -44,6 +44,28 @@ Aplikasi ini menerapkan:
 
 ---
 
+## Preview
+
+### Welcome Page
+
+<p align="center">
+  <img src="docs/images/Welcome-Page.png" width="800">
+</p>
+
+### Dashboard
+
+<p align="center">
+  <img src="docs/images/Dashboard-Page.png" width="800">
+</p>
+
+### PDF Preview (Modal)
+
+<p align="center">
+  <img src="docs/images/Modal-Preview-PDF.png" width="800">
+</p>
+
+---
+
 ## Tech Stack
 
 | Category       | Technology            |
@@ -284,11 +306,28 @@ storage/
 
 ---
 
+## Future Improvements
+
+- Notifikasi real-time (WebSocket)
+- Multi-family support (multi tenant)
+- Audit log untuk tracking aktivitas pengguna
+- REST API untuk integrasi mobile apps
+- Peningkatan UI/UX dan mobile responsiveness
+
+---
+
 ## Documentation
 
 Dokumentasi lengkap dapat diakses pada:
 
 - [Lihat Dokumentasi](https://docs.google.com/document/d/11gR_FC7OXHbdOK9MwvOHtbLB0f3B0ATUUw0gLRUDOWE/edit?usp=sharing)
+
+---
+
+## Disclaimer
+
+Project ini dikembangkan dengan bantuan AI sebagai alat pendukung untuk eksplorasi solusi, perbaikan kode, dan penyusunan dokumentasi.  
+Seluruh implementasi dan keputusan teknis tetap dilakukan secara mandiri.
 
 ---
 
