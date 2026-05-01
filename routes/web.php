@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('income')->name('income.')->group(function () {
             Route::get('/', Income\Index::class)->name('index');
             Route::get('/create', Income\Create::class)->name('create');
-            Route::get('/{income}/edit', Income\Edit::class)->name('edit');
+            Route::get('/{income:uuid_incomes}/edit', Income\Edit::class)->name('edit');
         });
 
         // Kelola Pengguna — hanya list, CRUD via modal

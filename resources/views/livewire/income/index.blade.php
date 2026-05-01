@@ -91,7 +91,7 @@
                 <tbody>
                     @forelse ($incomes as $income)
                         @php $badge = $income->category_badge; @endphp
-                        <tr wire:key="income-{{ $income->id }}">
+                        <tr wire:key="income-{{ $income->uuid_incomes }}">
                             <td class="px-4 text-muted">{{ $incomes->firstItem() + $loop->index }}</td>
 
                             <td>
@@ -129,11 +129,11 @@
                             <td class="px-4 text-end">
                                 <div class="d-flex justify-content-end align-items-center gap-1">
                                     @if ($income->is_mutable)
-                                        <a href="{{ route('income.edit', $income) }}" wire:navigate
+                                        <a href="{{ route('income.edit', $income->uuid_incomes) }}" wire:navigate
                                             class="sk-icon-btn me-1" title="Edit">
                                             <i class="bi bi-pencil" style="color:var(--sk-primary)"></i>
                                         </a>
-                                        <button wire:click="confirmDelete({{ $income->id }})"
+                                        <button wire:click="confirmDelete('{{ $income->uuid_incomes }}')"
                                             class="sk-icon-btn text-danger" title="Hapus">
                                             <i class="bi bi-trash3"></i>
                                         </button>

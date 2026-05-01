@@ -4,25 +4,24 @@ namespace App\Livewire\Income;
 
 use App\Models\Income;
 use App\Services\IncomeService;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('livewire.layout.app')]
-#[Title('Pemasukan')]
 class Index extends Component
 {
     use WithPagination;
 
+    // Properti filter dan pencarian
     public string $search   = '';
     public string $category = '';
     public string $month    = '';
     public string $year     = '';
     public int    $perPage  = 10;
 
-    public ?int   $deleteId          = null;
-    public string $deleteDescription = '';
+    // Properti untuk manajemen hapus (delete)
+    // UUID = string, bukan int
+    public ?string $deleteId          = null;
+    public string  $deleteDescription = '';
 
     protected IncomeService $service;
 
@@ -41,6 +40,8 @@ class Index extends Component
         ];
     }
 
+    // --- Hooks Update ---
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -58,18 +59,31 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function confirmDelete(int $id): void
+    /**
+     * Menyiapkan modal konfirmasi penghapusan data.
+     */
+    public function confirmDelete(string $id): void  // ← string, bukan int
     {
         $income = $this->service->findOrFail($id);
-        $this->deleteId          = $income->id;
+        $this->authorize('delete', $income);
+
+        $this->deleteId          = $income->uuid_incomes ?? $income->id;
         $this->deleteDescription = $income->description;
+
         $this->dispatch('open-modal', modal: 'modal-delete-income');
     }
 
+    /**
+     * Mengeksekusi penghapusan data setelah konfirmasi.
+     */
     public function destroy(): void
     {
         try {
-            $this->service->delete($this->service->findOrFail($this->deleteId));
+            $income = $this->service->findOrFail($this->deleteId);
+            $this->authorize('delete', $income);
+
+            $this->service->delete($income);
+
             $this->dispatch('close-modal', modal: 'modal-delete-income');
             $this->dispatch('toast', message: 'Pemasukan berhasil dihapus.', type: 'success');
         } catch (\RuntimeException $e) {
@@ -80,6 +94,9 @@ class Index extends Component
         $this->deleteId = null;
     }
 
+    /**
+     * Render daftar pemasukan.
+     */
     public function render()
     {
         $incomes = $this->service->getList(

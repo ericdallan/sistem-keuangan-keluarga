@@ -4,38 +4,42 @@ namespace App\Livewire\Income;
 
 use App\Models\Income;
 use App\Services\IncomeService;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-#[Layout('livewire.layout.app')]
-#[Title('Edit Pemasukan')]
+/**
+ * Komponen Livewire untuk menangani pengeditan data pemasukan.
+ */
 class Edit extends Component
 {
+    // ── State (Form Fields) ──────────────────────────────────────
+    // Model pemasukan yang sedang diedit
     public Income $income;
 
-    #[Validate('required|numeric|min:1')]
-    public string $amount = '';
-
-    #[Validate('required|string|max:255')]
+    public string $amount      = '';
     public string $description = '';
+    public string $date        = '';
+    public string $category    = '';
 
-    #[Validate('required|date')]
-    public string $date = '';
-
-    #[Validate('required|in:salary,bonus,other')]
-    public string $category = '';
-
+    // Service untuk logika bisnis pemasukan
     protected IncomeService $service;
 
+    /**
+     * Inisialisasi service melalui dependency injection.
+     */
     public function boot(IncomeService $service): void
     {
         $this->service = $service;
     }
 
+    /**
+     * Dijalankan saat komponen dimuat untuk mengisi data awal form.
+     * Parameter: Income $income (Model yang akan diedit)
+     */
     public function mount(Income $income): void
     {
+        // Pastikan user memiliki izin untuk mengedit data ini
+        $this->authorize('update', $income);
+
         $this->income      = $income;
         $this->amount      = (string) $income->amount;
         $this->description = $income->description;
@@ -43,17 +47,45 @@ class Edit extends Component
         $this->category    = $income->category;
     }
 
+    /**
+     * Mendefinisikan aturan validasi untuk input form.
+     */
+    protected function rules(): array
+    {
+        return [
+            'amount'      => ['required', 'numeric', 'min:1'],
+            'description' => ['required', 'string', 'max:255'],
+            'date'        => ['required', 'date'],
+            'category'    => ['required', 'in:salary,bonus,other'],
+        ];
+    }
+
+    /**
+     * Mendefinisikan pesan error kustom untuk validasi.
+     */
+    protected function messages(): array
+    {
+        return [
+            'amount.required'      => 'Jumlah wajib diisi.',
+            'amount.numeric'       => 'Jumlah harus berupa angka.',
+            'amount.min'           => 'Jumlah minimal Rp 1.',
+            'description.required' => 'Deskripsi wajib diisi.',
+            'date.required'        => 'Tanggal wajib diisi.',
+            'category.required'    => 'Kategori wajib dipilih.',
+        ];
+    }
+
+    /**
+     * Menyimpan perubahan data pemasukan ke database.
+     */
     public function update(): void
     {
-        $this->validate();
+        $this->authorize('update', $this->income);
+
+        $data = $this->validate();
 
         try {
-            $this->service->update($this->income, [
-                'amount'      => $this->amount,
-                'description' => $this->description,
-                'date'        => $this->date,
-                'category'    => $this->category,
-            ]);
+            $this->service->update($this->income, $data);
 
             $this->dispatch('toast', message: 'Pemasukan berhasil diperbarui.', type: 'success');
             $this->redirectRoute('income.index', navigate: true);
@@ -62,8 +94,12 @@ class Edit extends Component
         }
     }
 
+    /**
+     * Render tampilan komponen.
+     */
     public function render()
     {
-        return view('livewire.income.edit');
+        return view('livewire.income.edit')
+            ->layout('livewire.layout.app', ['title' => 'Edit Pemasukan']);
     }
 }

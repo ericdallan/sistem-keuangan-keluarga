@@ -43,7 +43,7 @@ class IncomeService
             ->where('uuid_incomes', $id)
             ->firstOrFail();
     }
-
+    
     /**
      * Buat pemasukan baru (oleh admin).
      */
