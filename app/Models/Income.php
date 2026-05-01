@@ -17,6 +17,14 @@ class Income extends Model
     use HasUuids;
 
     /**
+     * Konversi tipe data otomatis untuk kolom tertentu.
+     */
+    protected $casts = [
+        'date'   => 'date',
+        'amount' => 'integer',
+    ];
+
+    /**
      * Menentukan kolom yang digunakan untuk UUID.
      */
     public function uniqueIds(): array
@@ -60,7 +68,7 @@ class Income extends Model
             default        => ['bg' => '#e2e3e5', 'color' => '#383d41', 'icon' => 'bi-tag', 'label' => 'Lainnya'],
         };
     }
-    
+
     /**
      * Menentukan konfigurasi badge berdasarkan Status pemasukan.
      */
@@ -90,5 +98,13 @@ class Income extends Model
     public function getFormattedAmountAttribute(): string
     {
         return 'Rp ' . number_format($this->amount, 0, ',', '.');
+    }
+
+    /**
+     * Income dari fund_request tidak bisa diedit maupun dihapus.
+     */
+    public function getIsMutableAttribute(): bool
+    {
+        return $this->category !== 'fund_request';
     }
 }
